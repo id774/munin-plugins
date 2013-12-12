@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+class MuninPlugin
+  def initialize(args)
+    @option = args.shift || ""
+  end
+
+  def start
+    case @option
+    when "autoconf"
+      puts (File::Stat.new('/proc/stat').readable? ? "yes" : "no")
+    when "config"
+      puts 'graph_title Ruby example'
+      puts 'graph_args --rigid --lower-limit 0'
+      puts 'graph_scale no'
+      puts 'graph_vlabel size'
+      puts 'graph_category custom'
+      puts 'graph_info Disk usage graph'
+      puts 'sample.label sample'
+      puts 'sample.info size of sample'
+    else
+      rand = Random.new(1234)
+      result = rand(100) 
+      puts "sample.value #{result.to_s.chomp}.0"
+    end
+  end
+end
+
+if __FILE__ == $0
+  munin_plugin = MuninPlugin.new(ARGV)
+  munin_plugin.start
+end
