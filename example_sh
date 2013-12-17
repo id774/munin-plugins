@@ -4,13 +4,13 @@
 . $MUNIN_LIBDIR/plugins/plugin.sh
 
 if [ "$1" = "autoconf" ]; then
-	if [ -r /proc/stat ]; then
-		echo yes
-		exit 0
-	else
-		echo no
-		exit 0
-	fi
+    if [ -r /proc/stat ]; then
+        echo yes
+        exit 0
+    else
+        echo no
+        exit 0
+    fi
 fi
 
 if [ "$1" = "config" ]; then

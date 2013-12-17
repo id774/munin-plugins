@@ -21,7 +21,7 @@ class MuninPlugin
       puts 'sample.info size of sample'
     else
       rand = Random.new(1234)
-      result = rand(100) 
+      result = rand(100)
       puts "sample.value #{result.to_s.chomp}.0"
     end
   end
