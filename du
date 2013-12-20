@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/opt/ruby/current/bin/ruby
 # -*- coding: utf-8 -*-
 
 class MuninPlugin
