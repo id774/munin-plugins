@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+class MuninPlugin
+  def initialize(args)
+    @option = args.shift || ""
+  end
+
+  def start
+    case @option
+    when "autoconf"
+      puts (File::Stat.new('/proc/stat').readable? ? "yes" : "no")
+    when "config"
+      puts 'graph_title du stat'
+      puts 'graph_args --rigid --lower-limit 0'
+      puts 'graph_scale no'
+      puts 'graph_vlabel KB'
+      puts 'graph_category custom'
+      puts 'graph_info Disk usage graph'
+      puts 'tmp.label tmp'
+      puts 'tmp.info size of tmp'
+    else
+      result = `du /tmp --max-depth=0 --block-size=1KB | awk '{ print $1 }'`
+      puts "tmp.value #{result.chomp}.0"
+    end
+  end
+end
+
+if __FILE__ == $0
+  munin_plugin = MuninPlugin.new(ARGV)
+  munin_plugin.start
+end
