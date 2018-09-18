@@ -1,0 +1,68 @@
+#!/bin/sh
+#%# family=contrib
+#%# capabilities=autoconf
+PROC=${0##*/files_}
+TMPFILE="$MUNIN_PLUGSTATE/munin-files_${PROC}.state"
+
+### for checking status of plugin
+### `munin-node-configure` or `${this file_name} autoconf`
+if [ "$1" = "autoconf" ]; then
+    if [ -x /usr/bin/memcached ]; then
+        echo yes
+        exit 0
+    else
+        echo "no (memcached not found)"
+        exit 0
+    fi
+fi
+
+### for configuration
+if [ "$1" = "config" ]; then
+    echo graph_category processes
+    echo graph_title Required process abnormality
+
+    # Y Label Name
+    echo graph_vlabel number of anomalies
+
+    # Y Label Value
+    ## --lower-limit x
+    ## --upper-limit x
+    ## --rigid
+    ## --base 1024
+    echo graph_args --lower-limit 0 --upper-limit 10
+
+    # each line name
+    echo iptables.label iptables
+    echo ntpd.label ntp
+    echo memcached.label memcached
+    echo postgres.label postgres 
+
+    # each line style [LINE1|LINE2|LINE3|AREA|STACK]
+    echo iptables.draw LINE2
+    echo ntpd.draw LINE2
+    echo memcached.draw LINE2
+    echo postgres.draw LINE2
+
+    # each line threshold
+    echo iptables.warning 1:
+    echo iptables.critical 1:
+    echo ntpd.warning 1:
+    echo ntpd.critical 1:
+    echo memcached.warning 1:
+    echo memcached.critical 1:
+    echo postgres.warning 1:
+    echo postgres.critical 1:
+
+    exit 0
+fi
+
+# collect
+CMD=`sudo iptables -vn -L | grep "SET name: SSH side: source" | wc -l`
+echo "iptables.value ${CMD}"
+CMD=`ps -H auxwww | grep ntpd | grep -v "grep ntpd" | wc -l`
+echo "ntpd.value ${CMD}"
+CMD=`ps -H auxwww | grep memcached | grep -v "grep memcached" | wc -l`
+echo "memcached.value ${CMD}"
+CMD=`ps -H auxwww | grep postgres | grep -v "grep postgres" | wc -l`
+echo "postgres.value ${CMD}"
+
