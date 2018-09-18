@@ -3,15 +3,21 @@
 #%# capabilities=autoconf
 PROC=${0##*/files_}
 TMPFILE="$MUNIN_PLUGSTATE/munin-files_${PROC}.state"
+CONF_ERR=0
 
 ### for checking status of plugin
 ### `munin-node-configure` or `${this file_name} autoconf`
 if [ "$1" = "autoconf" ]; then
-    if [ -x /usr/bin/memcached ]; then
+    which ps > /dev/null || CONF_ERR=1
+    which grep > /dev/null || CONF_ERR=1
+    which wc > /dev/null || CONF_ERR=1
+    which iptables > /dev/null || CONF_ERR=1
+    which memcached > /dev/null || CONF_ERR=1
+    if [ $CONF_ERR -eq 0 ]; then
         echo yes
         exit 0
     else
-        echo "no (memcached not found)"
+        echo no
         exit 0
     fi
 fi
@@ -19,10 +25,10 @@ fi
 ### for configuration
 if [ "$1" = "config" ]; then
     echo graph_category processes
-    echo graph_title Required process abnormality
+    echo graph_title Required processes
 
     # Y Label Name
-    echo graph_vlabel number of anomalies
+    echo graph_vlabel number of required processes
 
     # Y Label Value
     ## --lower-limit x
