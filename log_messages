@@ -24,7 +24,7 @@ if [ "$1" = "config" ]; then
     echo graph_title Log messages
 
     # Y Label Name
-    echo graph_vlabel number of log messages
+    echo graph_vlabel Number of log messages
 
     # Y Label Value
     ## --lower-limit x
