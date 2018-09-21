@@ -2,6 +2,8 @@
 
 test -d /usr/local/share/munin/plugins || sudo mkdir -p /usr/local/share/munin/plugins/
 sudo cp ~/munin-plugins/process_monitoring /usr/local/share/munin/plugins/
+sudo cp ~/munin-plugins/log_messages /usr/local/share/munin/plugins/
 test -L /etc/munin/plugins/process_monitoring || sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring
+test -L /etc/munin/plugins/log_messages || sudo ln -s /usr/local/share/munin/plugins/log_messages /etc/munin/plugins/log_messages
 sudo vim /etc/sudoers
 

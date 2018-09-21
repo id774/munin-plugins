@@ -1,0 +1,52 @@
+#!/bin/sh
+#%# family=contrib
+#%# capabilities=autoconf
+PROC=${0##*/files_}
+TMPFILE="$MUNIN_PLUGSTATE/munin-files_${PROC}.state"
+CONF_ERR=0
+
+### for checking status of plugin
+### `munin-node-configure` or `${this file_name} autoconf`
+if [ "$1" = "autoconf" ]; then
+    which grep > /dev/null || CONF_ERR=1
+    if [ $CONF_ERR -eq 0 ]; then
+        echo yes
+        exit 0
+    else
+        echo no
+        exit 0
+    fi
+fi
+
+### for configuration
+if [ "$1" = "config" ]; then
+    echo graph_category other
+    echo graph_title Log messages
+
+    # Y Label Name
+    echo graph_vlabel number of log messages
+
+    # Y Label Value
+    ## --lower-limit x
+    ## --upper-limit x
+    ## --rigid
+    ## --base 1024
+    echo graph_args --lower-limit 0 --upper-limit 10
+
+    # each line name
+    echo attack.label attacks on iptables
+
+    # each line style [LINE1|LINE2|LINE3|AREA|STACK]
+    echo attack.draw LINE2
+
+    # each line threshold
+    echo attack.warning 1:
+    echo attack.critical 20:
+
+    exit 0
+fi
+
+# collect
+CMD=`grep attack /var/log/messages | wc -l`
+echo "attack.value ${CMD}"
+
