@@ -20,7 +20,7 @@ fi
 
 ### for configuration
 if [ "$1" = "config" ]; then
-    echo graph_category other
+    echo graph_category logs
     echo graph_title Log messages
 
     # Y Label Name
