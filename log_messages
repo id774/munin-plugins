@@ -40,8 +40,6 @@ if [ "$1" = "config" ]; then
     echo attack.draw LINE2
 
     # each line threshold
-    echo attack.warning 1:
-    echo attack.critical 20:
 
     exit 0
 fi
