@@ -28,7 +28,7 @@ if [ "$1" = "config" ]; then
     echo graph_title Required processes
 
     # Y Label Name
-    echo graph_vlabel number of required processes
+    echo graph_vlabel Number of required processes
 
     # Y Label Value
     ## --lower-limit x
