@@ -41,13 +41,15 @@ if [ "$1" = "config" ]; then
     echo iptables.label iptables
     echo ntpd.label ntp
     echo memcached.label memcached
-    echo postgres.label postgres 
+    #echo postgres.label postgres
+    #echo apache2.label apache2
 
     # each line style [LINE1|LINE2|LINE3|AREA|STACK]
     echo iptables.draw LINE2
     echo ntpd.draw LINE2
     echo memcached.draw LINE2
-    echo postgres.draw LINE2
+    #echo postgres.draw LINE2
+    #echo apache2.draw LINE2
 
     # each line threshold
     echo iptables.warning 1:
@@ -56,8 +58,10 @@ if [ "$1" = "config" ]; then
     echo ntpd.critical 1:
     echo memcached.warning 1:
     echo memcached.critical 1:
-    echo postgres.warning 1:
-    echo postgres.critical 1:
+    #echo postgres.warning 1:
+    #echo postgres.critical 1:
+    #echo apache2.warning 1:
+    #echo apache2.critical 1:
 
     exit 0
 fi
@@ -69,6 +73,8 @@ CMD=`ps -H auxwww | grep ntpd | grep -v "grep ntpd" | wc -l`
 echo "ntpd.value ${CMD}"
 CMD=`ps -H auxwww | grep memcached | grep -v "grep memcached" | wc -l`
 echo "memcached.value ${CMD}"
-CMD=`ps -H auxwww | grep postgres | grep -v "grep postgres" | wc -l`
-echo "postgres.value ${CMD}"
+#CMD=`ps -H auxwww | grep postgres | grep -v "grep postgres" | wc -l`
+#echo "postgres.value ${CMD}"
+#CMD=`ps -H auxwww | grep apache2 | grep -v "grep apache2" | wc -l`
+#echo "apache2.value ${CMD}"
 
