@@ -1,80 +1,121 @@
 #!/bin/sh
+
+########################################################################
+# process_monitoring: Munin Plugin for Monitoring Required Processes
+#
+#  Description:
+#  This plugin monitors the presence and count of essential system
+#  processes and configuration rules. It is designed for use with
+#  Munin and reports the number of running instances or matching
+#  configurations such as iptables rules, ntpd, and memcached.
+#
+#  It helps system administrators ensure that critical services are
+#  running as expected. The plugin outputs a graph in Munin showing
+#  the state of required processes.
+#
+#  Author: id774 (More info: http://id774.net)
+#  Source Code: https://github.com/id774/scripts
+#  License: The GPL version 3, or LGPL version 3 (Dual License).
+#  Contact: idnanashi@gmail.com
+#
+#  Version History:
+#  v1.0 2025-03-26
+#       Refactored for POSIX compliance. Added full header documentation,
+#       improved readability and maintainability with English comments.
+#  v0.1 2018-09-18
+#       Initial version.
+#
+#  Usage:
+#      ln -s /path/to/process_monitoring /etc/munin/plugins/files_iptables
+#      ln -s /path/to/process_monitoring /etc/munin/plugins/files_ntpd
+#      ln -s /path/to/process_monitoring /etc/munin/plugins/files_memcached
+#
+#      Then reload munin-node:
+#      systemctl restart munin-node
+#
+#  Example:
+#      ./process_monitoring autoconf
+#      ./process_monitoring config
+#      ./process_monitoring
+#
+########################################################################
+
 #%# family=contrib
 #%# capabilities=autoconf
+
+# Extract target name from script filename (e.g., files_iptables -> iptables)
 PROC=${0##*/files_}
 TMPFILE="$MUNIN_PLUGSTATE/munin-files_${PROC}.state"
+
+# Exit code flag for autoconf checks
 CONF_ERR=0
 
-### for checking status of plugin
-### `munin-node-configure` or `${this file_name} autoconf`
+# --- Autoconf check ---
 if [ "$1" = "autoconf" ]; then
-    which ps > /dev/null || CONF_ERR=1
-    which grep > /dev/null || CONF_ERR=1
-    which wc > /dev/null || CONF_ERR=1
-    which iptables > /dev/null || CONF_ERR=1
-    which memcached > /dev/null || CONF_ERR=1
-    if [ $CONF_ERR -eq 0 ]; then
-        echo yes
+    # Check for required commands
+    for cmd in ps grep wc iptables memcached; do
+        command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
+    done
+
+    if [ "$CONF_ERR" -eq 0 ]; then
+        echo "yes"
         exit 0
     else
-        echo no
+        echo "no"
         exit 0
     fi
 fi
 
-### for configuration
+# --- Munin graph configuration output ---
 if [ "$1" = "config" ]; then
-    echo graph_category processes
-    echo graph_title Required processes
+    echo "graph_category processes"
+    echo "graph_title Required processes"
+    echo "graph_vlabel Number of required processes"
+    echo "graph_args --lower-limit 0 --upper-limit 10"
 
-    # Y Label Name
-    echo graph_vlabel Number of required processes
+    # Define label and graph style for each monitored service
+    echo "iptables.label iptables"
+    echo "ntpd.label ntp"
+    echo "memcached.label memcached"
+    #echo "postgres.label postgres"
+    #echo "apache2.label apache2"
 
-    # Y Label Value
-    ## --lower-limit x
-    ## --upper-limit x
-    ## --rigid
-    ## --base 1024
-    echo graph_args --lower-limit 0 --upper-limit 10
+    echo "iptables.draw LINE2"
+    echo "ntpd.draw LINE2"
+    echo "memcached.draw LINE2"
+    #echo "postgres.draw LINE2"
+    #echo "apache2.draw LINE2"
 
-    # each line name
-    echo iptables.label iptables
-    echo ntpd.label ntp
-    echo memcached.label memcached
-    #echo postgres.label postgres
-    #echo apache2.label apache2
-
-    # each line style [LINE1|LINE2|LINE3|AREA|STACK]
-    echo iptables.draw LINE2
-    echo ntpd.draw LINE2
-    echo memcached.draw LINE2
-    #echo postgres.draw LINE2
-    #echo apache2.draw LINE2
-
-    # each line threshold
-    echo iptables.warning 1:
-    echo iptables.critical 1:
-    echo ntpd.warning 1:
-    echo ntpd.critical 1:
-    echo memcached.warning 1:
-    echo memcached.critical 1:
-    #echo postgres.warning 1:
-    #echo postgres.critical 1:
-    #echo apache2.warning 1:
-    #echo apache2.critical 1:
+    echo "iptables.warning 1:"
+    echo "iptables.critical 1:"
+    echo "ntpd.warning 1:"
+    echo "ntpd.critical 1:"
+    echo "memcached.warning 1:"
+    echo "memcached.critical 1:"
+    #echo "postgres.warning 1:"
+    #echo "postgres.critical 1:"
+    #echo "apache2.warning 1:"
+    #echo "apache2.critical 1:"
 
     exit 0
 fi
 
-# collect
-CMD=`sudo iptables -vn -L | grep "SET name: SSH side: source" | wc -l`
-echo "iptables.value ${CMD}"
-CMD=`ps -H auxwww | grep ntpd | grep -v "grep ntpd" | wc -l`
-echo "ntpd.value ${CMD}"
-CMD=`ps -H auxwww | grep memcached | grep -v "grep memcached" | wc -l`
-echo "memcached.value ${CMD}"
-#CMD=`ps -H auxwww | grep postgres | grep -v "grep postgres" | wc -l`
-#echo "postgres.value ${CMD}"
-#CMD=`ps -H auxwww | grep apache2 | grep -v "grep apache2" | wc -l`
-#echo "apache2.value ${CMD}"
+# --- Data collection phase ---
 
+# Count iptables rules matching specific description
+CMD=`/usr/sbin/iptables -vn -L 2>/dev/null | grep "SET name: SSH side: source" | wc -l`
+echo "iptables.value $CMD"
+
+# Count ntpd processes (excluding grep itself)
+CMD=`ps -H aux | grep "[n]tpd" | wc -l`
+echo "ntpd.value $CMD"
+
+# Count memcached processes
+CMD=`ps -H aux | grep "[m]emcached" | wc -l`
+echo "memcached.value $CMD"
+
+# Optional: Uncomment to enable postgres and apache2 monitoring
+#CMD=`ps -H aux | grep "[p]ostgres" | wc -l`
+#echo "postgres.value $CMD"
+#CMD=`ps -H aux | grep "[a]pache2" | wc -l`
+#echo "apache2.value $CMD"
