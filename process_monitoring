@@ -26,7 +26,7 @@
 #       Initial version.
 #
 #  Usage:
-#      sudo ln -s /path/to/process_monitoring /etc/munin/plugins/process_monitoring
+#      sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring
 #
 #      Then reload munin-node:
 #      sudo systemctl restart munin-node
