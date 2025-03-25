@@ -41,15 +41,22 @@
 #%# family=contrib
 #%# capabilities=autoconf
 
-# Extract target name from script filename (e.g., files_iptables -> iptables)
-PROC=${0##*/files_}
-TMPFILE="$MUNIN_PLUGSTATE/munin-files_${PROC}.state"
-
-# Exit code flag for autoconf checks
-CONF_ERR=0
+# Display script usage information
+usage() {
+    awk '
+        BEGIN { in_usage = 0 }
+        /^#  Usage:/ { in_usage = 1; print substr($0, 4); next }
+        /^#{10}/ { if (in_usage) exit }
+        in_usage && /^#/ { print substr($0, 4) }
+    ' "$0"
+    exit 0
+}
 
 # --- Autoconf check ---
-if [ "$1" = "autoconf" ]; then
+autoconf() {
+    # Exit code flag for autoconf checks
+    CONF_ERR=0
+
     # Check for required commands
     for cmd in ps grep wc iptables memcached; do
         command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
@@ -62,10 +69,10 @@ if [ "$1" = "autoconf" ]; then
         echo "no"
         exit 0
     fi
-fi
+}
 
 # --- Munin graph configuration output ---
-if [ "$1" = "config" ]; then
+config() {
     echo "graph_category processes"
     echo "graph_title Required processes"
     echo "graph_vlabel Number of required processes"
@@ -75,14 +82,14 @@ if [ "$1" = "config" ]; then
     echo "iptables.label iptables"
     echo "ntpd.label ntp"
     echo "memcached.label memcached"
-    #echo "postgres.label postgres"
-    #echo "apache2.label apache2"
+    echo "postgres.label postgres"
+    echo "apache2.label apache2"
 
     echo "iptables.draw LINE2"
     echo "ntpd.draw LINE2"
     echo "memcached.draw LINE2"
-    #echo "postgres.draw LINE2"
-    #echo "apache2.draw LINE2"
+    echo "postgres.draw LINE2"
+    echo "apache2.draw LINE2"
 
     echo "iptables.warning 1:"
     echo "iptables.critical 1:"
@@ -90,30 +97,42 @@ if [ "$1" = "config" ]; then
     echo "ntpd.critical 1:"
     echo "memcached.warning 1:"
     echo "memcached.critical 1:"
-    #echo "postgres.warning 1:"
-    #echo "postgres.critical 1:"
-    #echo "apache2.warning 1:"
-    #echo "apache2.critical 1:"
-
-    exit 0
-fi
+    echo "postgres.warning 1:"
+    echo "postgres.critical 1:"
+    echo "apache2.warning 1:"
+    echo "apache2.critical 1:"
+}
 
 # --- Data collection phase ---
+fetch() {
+    # Count iptables rules matching specific description
+    CMD=$(sudo /usr/sbin/iptables -vn -L 2>/dev/null | grep "SET name: SSH side: source" | wc -l)
+    echo "iptables.value $CMD"
 
-# Count iptables rules matching specific description
-CMD=`/usr/sbin/iptables -vn -L 2>/dev/null | grep "SET name: SSH side: source" | wc -l`
-echo "iptables.value $CMD"
+    # Count ntpd processes (excluding grep itself)
+    CMD=$(ps -H aux | grep "[n]tpd" | wc -l)
+    echo "ntpd.value $CMD"
 
-# Count ntpd processes (excluding grep itself)
-CMD=`ps -H aux | grep "[n]tpd" | wc -l`
-echo "ntpd.value $CMD"
+    # Count memcached processes
+    CMD=$(ps -H aux | grep "[m]emcached" | wc -l)
+    echo "memcached.value $CMD"
 
-# Count memcached processes
-CMD=`ps -H aux | grep "[m]emcached" | wc -l`
-echo "memcached.value $CMD"
+    # Optional
+    CMD=$(ps -H aux | grep "[p]ostgres" | wc -l)
+    echo "postgres.value $CMD"
+    CMD=$(ps -H aux | grep "[a]pache2" | wc -l)
+    echo "apache2.value $CMD"
+}
 
-# Optional: Uncomment to enable postgres and apache2 monitoring
-#CMD=`ps -H aux | grep "[p]ostgres" | wc -l`
-#echo "postgres.value $CMD"
-#CMD=`ps -H aux | grep "[a]pache2" | wc -l`
-#echo "apache2.value $CMD"
+# Main function to execute the script
+main() {
+    case "$1" in
+        -h|--help) usage ;;
+        autoconf) autoconf ;;
+        config) config ;;
+        *) fetch ;;
+    esac
+}
+
+# Execute main function
+main "$@"
