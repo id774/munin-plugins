@@ -14,7 +14,7 @@
 #  the state of required processes.
 #
 #  Author: id774 (More info: http://id774.net)
-#  Source Code: https://github.com/id774/scripts
+#  Source Code: https://github.com/id774/munin-plugins
 #  License: The GPL version 3, or LGPL version 3 (Dual License).
 #  Contact: idnanashi@gmail.com
 #
@@ -26,12 +26,10 @@
 #       Initial version.
 #
 #  Usage:
-#      ln -s /path/to/process_monitoring /etc/munin/plugins/files_iptables
-#      ln -s /path/to/process_monitoring /etc/munin/plugins/files_ntpd
-#      ln -s /path/to/process_monitoring /etc/munin/plugins/files_memcached
+#      sudo ln -s /path/to/process_monitoring /etc/munin/plugins/process_monitoring
 #
 #      Then reload munin-node:
-#      systemctl restart munin-node
+#      sudo systemctl restart munin-node
 #
 #  Example:
 #      ./process_monitoring autoconf
