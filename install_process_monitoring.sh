@@ -100,14 +100,14 @@ final_message() {
     echo ""
     echo " Installation complete."
     echo ""
-    echo "👉Edit the plugin if you wish to monitor additional processes (e.g., postgres, apache2):"
+    echo " Edit the plugin if you wish to monitor additional processes (e.g., postgres, apache2):"
     echo "  $PLUGIN_DST"
     echo ""
     echo " If you use iptables monitoring, ensure the following line exists in /etc/sudoers:"
     echo "  munin ALL=(ALL) NOPASSWD: /sbin/iptables"
     echo "  You can edit safely using: sudo visudo"
     echo ""
-    echo "🔄After editing, reload munin-node:"
+    echo " After editing, reload munin-node:"
     echo "  sudo systemctl restart munin-node"
 }
 
