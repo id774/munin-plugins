@@ -5,9 +5,9 @@
 #
 #  Description:
 #  This plugin monitors the presence and count of essential system
-#  processes and configuration rules. It is designed for use with
-#  Munin and reports the number of running instances or matching
-#  configurations such as iptables rules, ntpd, and memcached.
+#  processes and configuration rules. Designed for use with Munin,
+#  it reports the number of running instances or matching configurations,
+#  such as iptables rules, ntpd, and memcached.
 #
 #  It helps system administrators ensure that critical services are
 #  running as expected. The plugin outputs a graph in Munin showing
@@ -117,7 +117,7 @@ fetch() {
     CMD=$(ps -H aux | grep "[m]emcached" | wc -l)
     echo "memcached.value $CMD"
 
-    # Optional
+    # Optional: Monitor postgres and apache2 if applicable
     CMD=$(ps -H aux | grep "[p]ostgres" | wc -l)
     echo "postgres.value $CMD"
     CMD=$(ps -H aux | grep "[a]pache2" | wc -l)
