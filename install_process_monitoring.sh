@@ -27,11 +27,6 @@
 #
 ########################################################################
 
-PLUGIN_NAME="process_monitoring"
-PLUGIN_SRC="$HOME/munin-plugins/$PLUGIN_NAME"
-PLUGIN_DST="/usr/local/share/munin/plugins/$PLUGIN_NAME"
-PLUGIN_LINK="/etc/munin/plugins/$PLUGIN_NAME"
-
 # Display script usage information
 usage() {
     awk '
@@ -74,9 +69,14 @@ check_sudo() {
 }
 
 create_directory() {
-    if [ ! -d /usr/local/share/munin/plugins ]; then
-        echo "Creating plugin directory: /usr/local/share/munin/plugins"
-        sudo mkdir -p /usr/local/share/munin/plugins
+    if [ ! -d "$PLUGIN_DIR" ]; then
+        echo "Creating plugin directory: $PLUGIN_DIR"
+        sudo mkdir -p "$PLUGIN_DIR"
+    fi
+
+    if [ ! -d "$LINK_DIR" ]; then
+        echo "Creating symlink directory: $LINK_DIR"
+        sudo mkdir -p "$LINK_DIR"
     fi
 }
 
@@ -120,6 +120,13 @@ main() {
     check_system
     check_commands sudo cp mkdir chmod chown ln rm id dirname uname
     check_sudo
+
+    PLUGIN_NAME="process_monitoring"
+    PLUGIN_SRC="$HOME/munin-plugins/$PLUGIN_NAME"
+    PLUGIN_DST="/usr/local/share/munin/plugins/$PLUGIN_NAME"
+    PLUGIN_LINK="/etc/munin/plugins/$PLUGIN_NAME"
+    PLUGIN_DIR=$(dirname "$PLUGIN_DST")
+    LINK_DIR=$(dirname "$PLUGIN_LINK")
 
     # Check and create plugin install directory
     create_directory
