@@ -4,15 +4,15 @@
 
 **munin-plugins** is a collection of custom Munin plugins designed to monitor system processes, services, and application-specific metrics not covered by default Munin plugins.
 
-Currently, this repository includes the `process_monitoring` plugin, which checks for the presence and status of essential processes such as `iptables`, `ntpd`, and `memcached`. It helps ensure that critical services are running and properly configured on your server.
+Currently, this repository includes the `process_monitoring` plugin, which checks for the presence and status of essential processes such as `iptables`, `ntpd`, and `memcached`. It helps ensure that critical services are running and properly configured on your system.
 
 More plugins may be added in the future to expand monitoring capabilities.
 
 ## Features
 
 - **Lightweight and POSIX-compliant shell scripting**
-- **Pluggable architecture using symlinks**
-- **Customizable to monitor any daemon or process**
+- **Pluggable architecture via symbolic links**
+- **Customizable for monitoring any daemon or system process**
 - **Warning and critical threshold support**
 - **Sudo-aware for iptables rule checks**
 
@@ -22,8 +22,8 @@ This plugin is intended for use on:
 
 - **Linux (Debian, Ubuntu, CentOS, etc.)**
 - Munin-node installed and configured
-- `/usr/local/share/munin/plugins` and `/etc/munin/plugins/` available
-- `sudo` privileges configured if required for certain checks (e.g., iptables)
+- Environments with `/usr/local/share/munin/plugins` and `/etc/munin/plugins/` available
+- `sudo` privileges configured for Munin if necessary (e.g., iptables monitoring)
 
 ## Included Plugin
 
@@ -73,9 +73,11 @@ munin ALL=(ALL) NOPASSWD: /sbin/iptables
 
 ## Usage Example
 
-Once installed and symlinked, Munin will collect and graph the number of running processes (or presence of iptables rules) for each defined target.
+Once installed and symlinked, Munin will collect and graph the number of monitored processes such as `iptables`, `ntpd`, and `memcached`.
 
-Each target is graphed separately (e.g., `files_iptables`, `files_ntpd`) with warning/critical thresholds defined in the plugin.
+The plugin is invoked as `process_monitoring` and provides a single graph showing the status of all defined targets in one view.
+
+You can customize which processes to monitor by editing the plugin script itself.
 
 ## Repository Structure
 
