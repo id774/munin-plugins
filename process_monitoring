@@ -106,7 +106,7 @@ config() {
 # --- Data collection phase ---
 fetch() {
     # Count iptables rules matching specific description
-    CMD=$(sudo /usr/sbin/iptables -vn -L 2>/dev/null | grep "SET name: SSH side: source" | wc -l)
+    CMD=$(sudo iptables -vn -L 2>/dev/null | grep "SET name: SSH side: source" | wc -l)
     echo "iptables.value $CMD"
 
     # Count ntpd processes (excluding grep itself)
