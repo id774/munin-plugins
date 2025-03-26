@@ -121,7 +121,7 @@ main() {
     esac
 
     check_system
-    check_commands sudo cp mkdir chmod ln rm id dirname uname
+    check_commands sudo cp mkdir chmod ln rm id dirname
     check_sudo
 
     PLUGIN_NAME="process_monitoring"
