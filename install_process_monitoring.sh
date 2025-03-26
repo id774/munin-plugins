@@ -68,6 +68,7 @@ check_sudo() {
     fi
 }
 
+# Create plugin and symlink directories if they do not exist
 create_directory() {
     if [ ! -d "$PLUGIN_DIR" ]; then
         echo "Creating plugin directory: $PLUGIN_DIR"
@@ -80,14 +81,15 @@ create_directory() {
     fi
 }
 
+# Copy the plugin to the target plugin directory and make it executable
 install_plugin() {
     echo "Installing $PLUGIN_NAME to $PLUGIN_DST"
     sudo cp "$PLUGIN_SRC" "$PLUGIN_DST"
     sudo chmod +x "$PLUGIN_DST"
 }
 
+# Create a symbolic link in /etc/munin/plugins pointing to the installed plugin
 create_symlink() {
-    # Create symlink if not present
     if [ ! -L "$PLUGIN_LINK" ]; then
         echo "Creating symlink: $PLUGIN_LINK"
         sudo ln -s "$PLUGIN_DST" "$PLUGIN_LINK"
@@ -96,19 +98,20 @@ create_symlink() {
     fi
 }
 
+# Print post-installation instructions and next steps
 final_message() {
     echo ""
     echo " Installation complete."
     echo ""
     echo " Edit the plugin if you wish to monitor additional processes (e.g., postgres, apache2):"
-    echo "  $PLUGIN_DST"
+    echo "   $PLUGIN_DST"
     echo ""
     echo " If you use iptables monitoring, ensure the following line exists in /etc/sudoers:"
     echo "  munin ALL=(ALL) NOPASSWD: /sbin/iptables"
-    echo "  You can edit safely using: sudo visudo"
+    echo "   You can edit safely using: sudo visudo"
     echo ""
     echo " After editing, reload munin-node:"
-    echo "  sudo systemctl restart munin-node"
+    echo "   sudo systemctl restart munin-node"
 }
 
 # Main function to execute the script
