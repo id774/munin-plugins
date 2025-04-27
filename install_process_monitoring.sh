@@ -14,6 +14,8 @@
 #  Contact: idnanashi@gmail.com
 #
 #  Version History:
+#  v1.1 2025-04-27
+#       Add error handling and skip logic for plugin installation.
 #  v1.0 2025-03-26
 #       Initial release.
 #
@@ -41,7 +43,7 @@ usage() {
 # Function to check if the system is Linux
 check_system() {
     if [ "$(uname -s)" != "Linux" ]; then
-        echo "Error: This script is intended for Linux systems only." >&2
+        echo "[ERROR] This script is intended for Linux systems only." >&2
         exit 1
     fi
 }
@@ -51,10 +53,10 @@ check_commands() {
     for cmd in "$@"; do
         cmd_path=$(command -v "$cmd" 2>/dev/null)
         if [ -z "$cmd_path" ]; then
-            echo "Error: Command '$cmd' is not installed. Please install $cmd and try again." >&2
+            echo "[ERROR] Command '$cmd' is not installed. Please install $cmd and try again." >&2
             exit 127
         elif [ ! -x "$cmd_path" ]; then
-            echo "Error: Command '$cmd' is not executable. Please check the permissions." >&2
+            echo "[ERROR] Command '$cmd' is not executable. Please check the permissions." >&2
             exit 126
         fi
     done
@@ -63,7 +65,7 @@ check_commands() {
 # Check if the user has sudo privileges (password may be required)
 check_sudo() {
     if ! sudo -v 2>/dev/null; then
-        echo "Error: This script requires sudo privileges. Please run as a user with sudo access." >&2
+        echo "[ERROR] This script requires sudo privileges. Please run as a user with sudo access." >&2
         exit 1
     fi
 }
@@ -71,37 +73,60 @@ check_sudo() {
 # Create plugin and symlink directories if they do not exist
 create_directory() {
     if [ ! -d "$PLUGIN_DIR" ]; then
-        echo "Creating plugin directory: $PLUGIN_DIR"
-        sudo mkdir -p "$PLUGIN_DIR"
+        echo "[INFO] Creating plugin directory: $PLUGIN_DIR"
+        sudo mkdir -p "$PLUGIN_DIR" || {
+            echo "[ERROR] Failed to create $PLUGIN_DIR" >&2
+            exit 1
+        }
+    else
+        echo "[INFO] Plugin directory already exists: $PLUGIN_DIR"
     fi
 
     if [ ! -d "$LINK_DIR" ]; then
-        echo "Creating symlink directory: $LINK_DIR"
-        sudo mkdir -p "$LINK_DIR"
+        echo "[INFO] Creating symlink directory: $LINK_DIR"
+        sudo mkdir -p "$LINK_DIR" || {
+            echo "[ERROR] Failed to create $LINK_DIR" >&2
+            exit 1
+        }
+    else
+        echo "[INFO] Symlink directory already exists: $LINK_DIR"
     fi
 }
 
 # Copy the plugin to the target plugin directory and make it executable
 install_plugin() {
-    echo "Installing $PLUGIN_NAME to $PLUGIN_DST"
-    sudo cp "$PLUGIN_SRC" "$PLUGIN_DST"
-    sudo chmod +x "$PLUGIN_DST"
+    if [ -f "$PLUGIN_DST" ]; then
+        echo "[INFO] Plugin already installed at: $PLUGIN_DST"
+    else
+        echo "[INFO] Installing $PLUGIN_NAME to $PLUGIN_DST"
+        sudo cp "$PLUGIN_SRC" "$PLUGIN_DST" || {
+            echo "[ERROR] Failed to copy plugin to $PLUGIN_DST" >&2
+            exit 1
+        }
+        sudo chmod +x "$PLUGIN_DST" || {
+            echo "[ERROR] Failed to set executable permission on $PLUGIN_DST" >&2
+            exit 1
+        }
+    fi
 }
 
 # Create a symbolic link in /etc/munin/plugins pointing to the installed plugin
 create_symlink() {
-    if [ ! -L "$PLUGIN_LINK" ]; then
-        echo "Creating symlink: $PLUGIN_LINK"
-        sudo ln -s "$PLUGIN_DST" "$PLUGIN_LINK"
+    if [ -L "$PLUGIN_LINK" ]; then
+        echo "[INFO] Symlink already exists: $PLUGIN_LINK"
     else
-        echo "Symlink already exists: $PLUGIN_LINK"
+        echo "[INFO] Creating symlink: $PLUGIN_LINK"
+        sudo ln -s "$PLUGIN_DST" "$PLUGIN_LINK" || {
+            echo "[ERROR] Failed to create symlink at $PLUGIN_LINK" >&2
+            exit 1
+        }
     fi
 }
 
 # Print post-installation instructions and next steps
 final_message() {
     echo ""
-    echo " Installation complete."
+    echo "[INFO] Installation complete."
     echo ""
     echo " Edit the plugin if you wish to monitor additional processes (e.g., postgres, apache2):"
     echo "   $PLUGIN_DST"
