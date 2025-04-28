@@ -75,7 +75,7 @@ create_directory() {
     if [ ! -d "$PLUGIN_DIR" ]; then
         echo "[INFO] Creating plugin directory: $PLUGIN_DIR"
         sudo mkdir -p "$PLUGIN_DIR" || {
-            echo "[ERROR] Failed to create $PLUGIN_DIR" >&2
+            echo "[ERROR] Failed to create $PLUGIN_DIR." >&2
             exit 1
         }
     else
@@ -85,7 +85,7 @@ create_directory() {
     if [ ! -d "$LINK_DIR" ]; then
         echo "[INFO] Creating symlink directory: $LINK_DIR"
         sudo mkdir -p "$LINK_DIR" || {
-            echo "[ERROR] Failed to create $LINK_DIR" >&2
+            echo "[ERROR] Failed to create $LINK_DIR." >&2
             exit 1
         }
     else
@@ -98,13 +98,13 @@ install_plugin() {
     if [ -f "$PLUGIN_DST" ]; then
         echo "[INFO] Plugin already installed at: $PLUGIN_DST"
     else
-        echo "[INFO] Installing $PLUGIN_NAME to $PLUGIN_DST"
+        echo "[INFO] Installing $PLUGIN_NAME to $PLUGIN_DST."
         sudo cp "$PLUGIN_SRC" "$PLUGIN_DST" || {
-            echo "[ERROR] Failed to copy plugin to $PLUGIN_DST" >&2
+            echo "[ERROR] Failed to copy plugin to $PLUGIN_DST." >&2
             exit 1
         }
         sudo chmod +x "$PLUGIN_DST" || {
-            echo "[ERROR] Failed to set executable permission on $PLUGIN_DST" >&2
+            echo "[ERROR] Failed to set executable permission on $PLUGIN_DST." >&2
             exit 1
         }
     fi
@@ -117,7 +117,7 @@ create_symlink() {
     else
         echo "[INFO] Creating symlink: $PLUGIN_LINK"
         sudo ln -s "$PLUGIN_DST" "$PLUGIN_LINK" || {
-            echo "[ERROR] Failed to create symlink at $PLUGIN_LINK" >&2
+            echo "[ERROR] Failed to create symlink at $PLUGIN_LINK." >&2
             exit 1
         }
     fi
