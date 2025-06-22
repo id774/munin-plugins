@@ -163,7 +163,9 @@ main() {
     install_plugin
     create_symlink
     final_message
+    return 0
 }
 
 # Execute main function
 main "$@"
+exit $?
