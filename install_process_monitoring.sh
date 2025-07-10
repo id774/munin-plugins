@@ -13,14 +13,6 @@
 #  License: The GPL version 3, or LGPL version 3 (Dual License).
 #  Contact: idnanashi@gmail.com
 #
-#  Version History:
-#  v1.2 2025-06-23
-#       Unified usage output to display full script header and support common help/version options.
-#  v1.1 2025-04-27
-#       Add error handling and skip logic for plugin installation.
-#  v1.0 2025-03-26
-#       Initial release.
-#
 #  Usage:
 #      ./install_process_monitoring.sh
 #
@@ -28,6 +20,14 @@
 #  - This script copies 'process_monitoring' to /usr/local/share/munin/plugins
 #    and creates a symlink in /etc/munin/plugins.
 #  - You must manually configure /etc/sudoers for iptables access if needed.
+#
+#  Version History:
+#  v1.2 2025-06-23
+#       Unified usage output to display full script header and support common help/version options.
+#  v1.1 2025-04-27
+#       Add error handling and skip logic for plugin installation.
+#  v1.0 2025-03-26
+#       Initial release.
 #
 ########################################################################
 
