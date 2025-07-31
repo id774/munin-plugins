@@ -15,13 +15,17 @@
 #
 #  Usage:
 #      ./install_process_monitoring.sh
+#      ./install_process_monitoring.sh --uninstall
 #
 #  Notes:
 #  - This script copies 'process_monitoring' to /usr/local/share/munin/plugins
 #    and creates a symlink in /etc/munin/plugins.
 #  - You must manually configure /etc/sudoers for iptables access if needed.
+#  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v1.3 2025-07-31
+#       Add --uninstall option to remove installed plugin and symlink.
 #  v1.2 2025-06-23
 #       Unified usage output to display full script header and support common help/version options.
 #  v1.1 2025-04-27
@@ -49,7 +53,7 @@ check_system() {
     fi
 }
 
-# Check required commands
+# Check if required commands are available and executable
 check_commands() {
     for cmd in "$@"; do
         cmd_path=$(command -v "$cmd" 2>/dev/null)
@@ -124,6 +128,23 @@ create_symlink() {
     fi
 }
 
+uninstall_plugin() {
+    echo "[INFO] Uninstalling $PLUGIN_NAME..."
+    if [ -L "$PLUGIN_LINK" ]; then
+        sudo rm "$PLUGIN_LINK" && echo "[INFO] Removed symlink: $PLUGIN_LINK"
+    else
+        echo "[INFO] Symlink not found: $PLUGIN_LINK"
+    fi
+
+    if [ -f "$PLUGIN_DST" ]; then
+        sudo rm "$PLUGIN_DST" && echo "[INFO] Removed plugin: $PLUGIN_DST"
+    else
+        echo "[INFO] Plugin not found: $PLUGIN_DST"
+    fi
+
+    echo "[INFO] Uninstallation complete."
+}
+
 # Print post-installation instructions and next steps
 final_message() {
     echo ""
@@ -142,14 +163,6 @@ final_message() {
 
 # Main entry point of the script
 main() {
-    case "$1" in
-        -h|--help|-v|--version) usage ;;
-    esac
-
-    check_system
-    check_commands sudo cp mkdir chmod ln rm id dirname
-    check_sudo
-
     PLUGIN_NAME="process_monitoring"
     PLUGIN_SRC="$HOME/munin-plugins/$PLUGIN_NAME"
     PLUGIN_DST="/usr/local/share/munin/plugins/$PLUGIN_NAME"
@@ -157,13 +170,31 @@ main() {
     PLUGIN_DIR=$(dirname "$PLUGIN_DST")
     LINK_DIR=$(dirname "$PLUGIN_LINK")
 
-    # Check and create plugin install directory
-    create_directory
-
-    install_plugin
-    create_symlink
-    final_message
-    return 0
+    case "$1" in
+        -h|--help|-v|--version)
+            usage
+            ;;
+        --uninstall)
+            check_system
+            check_commands sudo rm
+            check_sudo
+            uninstall_plugin
+            exit 0
+            ;;
+        "")
+            check_system
+            check_commands sudo cp mkdir chmod ln rm id dirname
+            check_sudo
+            create_directory
+            install_plugin
+            create_symlink
+            final_message
+            ;;
+        *)
+            echo "[ERROR] Unknown option: $1" >&2
+            usage
+            ;;
+    esac
 }
 
 # Execute main function
