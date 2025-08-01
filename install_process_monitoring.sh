@@ -128,7 +128,23 @@ create_symlink() {
     fi
 }
 
-uninstall_plugin() {
+# Install munin plugins
+install() {
+    check_system
+    check_commands sudo cp mkdir chmod ln rm id dirname
+    check_sudo
+    create_directory
+    install_plugin
+    create_symlink
+    final_message
+}
+
+# Uninstall munin plugins
+uninstall() {
+    check_system
+    check_commands sudo rm
+    check_sudo
+
     echo "[INFO] Uninstalling $PLUGIN_NAME..."
     if [ -L "$PLUGIN_LINK" ]; then
         sudo rm "$PLUGIN_LINK" && echo "[INFO] Removed symlink: $PLUGIN_LINK"
@@ -175,26 +191,14 @@ main() {
             usage
             ;;
         -u|--uninstall)
-            check_system
-            check_commands sudo rm
-            check_sudo
-            uninstall_plugin
-            exit 0
+            uninstall
             ;;
-        "")
-            check_system
-            check_commands sudo cp mkdir chmod ln rm id dirname
-            check_sudo
-            create_directory
-            install_plugin
-            create_symlink
-            final_message
-            ;;
-        *)
-            echo "[ERROR] Unknown option: $1" >&2
-            usage
+        ""|*)
+            install
             ;;
     esac
+
+    return 0
 }
 
 # Execute main function
