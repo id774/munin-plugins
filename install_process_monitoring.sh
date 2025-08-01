@@ -24,7 +24,7 @@
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
-#  v1.3 2025-07-31
+#  v2.0 2025-08-01
 #       Add --uninstall option to remove installed plugin and symlink.
 #  v1.2 2025-06-23
 #       Unified usage output to display full script header and support common help/version options.
