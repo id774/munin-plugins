@@ -174,7 +174,7 @@ main() {
         -h|--help|-v|--version)
             usage
             ;;
-        --uninstall)
+        -u|--uninstall)
             check_system
             check_commands sudo rm
             check_sudo
