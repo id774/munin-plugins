@@ -45,6 +45,25 @@ This will:
 - Create a symlink in `/etc/munin/plugins/`
 - Set executable permissions
 
+## Uninstallation
+
+To remove all installed components of `process_monitoring`, run:
+
+```sh
+./install_process_monitoring.sh --uninstall
+```
+
+This will:
+
+- Delete the plugin from `/usr/local/share/munin/plugins/`
+- Remove the symlink from `/etc/munin/plugins/`
+
+Make sure to restart `munin-node` afterward:
+
+```sh
+sudo systemctl restart munin-node
+```
+
 ## Configuration
 
 To enable monitoring of specific services, create symbolic links with appropriate names:
