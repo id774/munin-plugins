@@ -7,7 +7,8 @@
 #  This plugin monitors the presence and count of essential system
 #  processes and configuration rules. Designed for use with Munin,
 #  it reports the number of running instances or matching configurations,
-#  such as iptables rules, ntpd, and memcached.
+#  such as iptables rules, ntpd, memcached, postgres, apache2,
+#  and MySQL-compatible servers (mysqld / mariadbd).
 #
 #  It helps system administrators ensure that critical services are
 #  running as expected. The plugin outputs a graph in Munin showing
@@ -19,6 +20,8 @@
 #  Contact: idnanashi@gmail.com
 #
 #  Version History:
+#  v1.1 2025-08-29
+#       Add MySQL (mysqld / mariadbd) process monitoring (label: mysql).
 #  v1.0 2025-03-26
 #       Refactored for POSIX compliance. Added full header documentation,
 #       improved readability and maintainability with English comments.
@@ -64,10 +67,10 @@ autoconf() {
 
     if [ "$CONF_ERR" -eq 0 ]; then
         echo "yes"
-        exit 0
+        return 0
     else
         echo "no"
-        exit 0
+        return 0
     fi
 }
 
@@ -83,12 +86,14 @@ config() {
     echo "ntpd.label ntp"
     echo "memcached.label memcached"
     echo "postgres.label postgres"
+    echo "mysql.label mysql"
     echo "apache2.label apache2"
 
     echo "iptables.draw LINE2"
     echo "ntpd.draw LINE2"
     echo "memcached.draw LINE2"
     echo "postgres.draw LINE2"
+    echo "mysql.draw LINE2"
     echo "apache2.draw LINE2"
 
     echo "iptables.warning 1:"
@@ -99,6 +104,8 @@ config() {
     echo "memcached.critical 1:"
     echo "postgres.warning 1:"
     echo "postgres.critical 1:"
+    echo "mysql.warning 1:"
+    echo "mysql.critical 1:"
     echo "apache2.warning 1:"
     echo "apache2.critical 1:"
 }
@@ -117,22 +124,28 @@ fetch() {
     CMD=$(ps -H aux | grep "[m]emcached" | wc -l)
     echo "memcached.value $CMD"
 
-    # Optional: Monitor postgres and apache2 if applicable
+    # Optional: Monitor other processes if applicable
     CMD=$(ps -H aux | grep "[p]ostgres" | wc -l)
     echo "postgres.value $CMD"
+    CMD=$(ps -H aux | grep -E "[m](ysqld|ariadbd)" | wc -l)
+    echo "mysql.value $CMD"
     CMD=$(ps -H aux | grep "[a]pache2" | wc -l)
     echo "apache2.value $CMD"
+
+    return 0
 }
 
-# Main function to execute the script
+# Main entry point of the script
 main() {
     case "$1" in
-        -h|--help) usage ;;
+        -h|--help|-v|--version) usage ;;
         autoconf) autoconf ;;
         config) config ;;
         *) fetch ;;
     esac
+    return $?
 }
 
 # Execute main function
 main "$@"
+exit $?
