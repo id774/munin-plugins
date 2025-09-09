@@ -20,6 +20,8 @@
 #  Contact: idnanashi@gmail.com
 #
 #  Version History:
+#  v1.2 2025-09-09
+#       POSIX safe process counting via ps comm and simplified autoconf dependencies.
 #  v1.1 2025-08-29
 #       Add MySQL (mysqld / mariadbd) process monitoring (label: mysql).
 #  v1.0 2025-03-26
@@ -44,13 +46,12 @@
 #%# family=contrib
 #%# capabilities=autoconf
 
-# Display script usage information
+# Display full script header information extracted from the top comment block
 usage() {
     awk '
-        BEGIN { in_usage = 0 }
-        /^#  Usage:/ { in_usage = 1; print substr($0, 4); next }
-        /^#{10}/ { if (in_usage) exit }
-        in_usage && /^#/ { print substr($0, 4) }
+        BEGIN { in_header = 0 }
+        /^#{10,}$/ { if (!in_header) { in_header = 1; next } else exit }
+        in_header && /^# ?/ { print substr($0, 3) }
     ' "$0"
     exit 0
 }
@@ -61,7 +62,8 @@ autoconf() {
     CONF_ERR=0
 
     # Check for required commands
-    for cmd in ps grep wc iptables memcached; do
+    # Note: Do not require service binaries themselves (memcached, etc.)
+    for cmd in ps grep awk iptables; do
         command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
     done
 
@@ -110,26 +112,37 @@ config() {
     echo "apache2.critical 1:"
 }
 
+# --- Data collection helpers ---
+# Count processes by exact command name using POSIX-safe ps
+count_comm() {
+    # Prints the count of processes whose command name exactly matches $1
+    ps -e -o comm= | grep -c "^$1$"
+}
+
 # --- Data collection phase ---
 fetch() {
     # Count iptables rules matching specific description
-    CMD=$(sudo iptables -vn -L 2>/dev/null | grep "SET name: SSH side: source" | wc -l)
+    CMD=$(sudo iptables -vn -L 2>/dev/null | grep -c "SET name: SSH side: source")
     echo "iptables.value $CMD"
 
-    # Count ntpd processes (excluding grep itself)
-    CMD=$(ps -H aux | grep "[n]tpd" | wc -l)
+    # Count ntpd processes
+    CMD=$(count_comm ntpd)
     echo "ntpd.value $CMD"
 
     # Count memcached processes
-    CMD=$(ps -H aux | grep "[m]emcached" | wc -l)
+    CMD=$(count_comm memcached)
     echo "memcached.value $CMD"
 
-    # Optional: Monitor other processes if applicable
-    CMD=$(ps -H aux | grep "[p]ostgres" | wc -l)
+    # Count postgres processes
+    CMD=$(count_comm postgres)
     echo "postgres.value $CMD"
-    CMD=$(ps -H aux | grep -E "[m](ysqld|ariadbd)" | wc -l)
+
+    # Count MySQL compatible servers (mysqld or mariadbd)
+    CMD=$(ps -e -o comm= | grep -E -c "^(mysqld|mariadbd)$")
     echo "mysql.value $CMD"
-    CMD=$(ps -H aux | grep "[a]pache2" | wc -l)
+
+    # Count apache2 processes
+    CMD=$(count_comm apache2)
     echo "apache2.value $CMD"
 
     return 0
