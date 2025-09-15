@@ -77,11 +77,11 @@ autoconf() {
 
     if [ "$CONF_ERR" -eq 0 ]; then
         echo "yes"
-        return 0
     else
         echo "no"
-        return 0
     fi
+
+    return 0
 }
 
 # --- Munin graph configuration output ---
@@ -128,6 +128,8 @@ config() {
     echo "mysql.critical 1:"
     echo "apache2.warning 1:"
     echo "apache2.critical 1:"
+
+    return 0
 }
 
 # --- Data collection helpers ---
