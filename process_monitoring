@@ -7,8 +7,8 @@
 #  This plugin monitors the presence and count of essential system
 #  processes and configuration rules. Designed for use with Munin,
 #  it reports the number of running instances or matching configurations,
-#  such as iptables rules, ntpd, memcached, postgres, apache2,
-#  and MySQL-compatible servers (mysqld / mariadbd).
+#  such as iptables rules, ntpd, memcached, postgres (or postmaster),
+#  apache2, and MySQL-compatible servers (mysqld / mariadbd).
 #
 #  It helps system administrators ensure that critical services are
 #  running as expected. The plugin outputs a graph in Munin showing
@@ -20,6 +20,9 @@
 #  Contact: idnanashi@gmail.com
 #
 #  Version History:
+#  v1.3 2025-09-15
+#       Added GAUGE type definitions, raised graph ceiling to 50, and ensured PostgreSQL
+#       compatibility by counting both postgres and legacy postmaster processes.
 #  v1.2 2025-09-09
 #       POSIX safe process counting via ps comm and simplified autoconf dependencies.
 #  v1.1 2025-08-29
@@ -40,6 +43,11 @@
 #      ./process_monitoring autoconf
 #      ./process_monitoring config
 #      ./process_monitoring
+#
+#  Note:
+#      If your system requires privileges for listing firewall rules,
+#      allow the munin user via sudoers, e.g.:
+#      munin ALL=(root) NOPASSWD:/sbin/iptables
 #
 ########################################################################
 
@@ -81,21 +89,31 @@ config() {
     echo "graph_category processes"
     echo "graph_title Required processes"
     echo "graph_vlabel Number of required processes"
-    echo "graph_args --lower-limit 0 --upper-limit 10"
+    echo "graph_args --lower-limit 0 --upper-limit 50"
 
-    # Define label and graph style for each monitored service
+    # Define label and graph style/type for each monitored service
     echo "iptables.label iptables"
-    echo "ntpd.label ntp"
-    echo "memcached.label memcached"
-    echo "postgres.label postgres"
-    echo "mysql.label mysql"
-    echo "apache2.label apache2"
-
+    echo "iptables.type GAUGE"
     echo "iptables.draw LINE2"
+
+    echo "ntpd.label ntp"
+    echo "ntpd.type GAUGE"
     echo "ntpd.draw LINE2"
+
+    echo "memcached.label memcached"
+    echo "memcached.type GAUGE"
     echo "memcached.draw LINE2"
+
+    echo "postgres.label postgres"
+    echo "postgres.type GAUGE"
     echo "postgres.draw LINE2"
+
+    echo "mysql.label mysql"
+    echo "mysql.type GAUGE"
     echo "mysql.draw LINE2"
+
+    echo "apache2.label apache2"
+    echo "apache2.type GAUGE"
     echo "apache2.draw LINE2"
 
     echo "iptables.warning 1:"
@@ -133,8 +151,8 @@ fetch() {
     CMD=$(count_comm memcached)
     echo "memcached.value $CMD"
 
-    # Count postgres processes
-    CMD=$(count_comm postgres)
+    # Count postgres processes (compat: postmaster on older systems)
+    CMD=$(ps -e -o comm= | grep -E -c "^(postgres|postmaster)$")
     echo "postgres.value $CMD"
 
     # Count MySQL compatible servers (mysqld or mariadbd)
