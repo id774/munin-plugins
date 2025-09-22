@@ -24,20 +24,6 @@
 #  License: The GPL version 3, or LGPL version 3 (Dual License).
 #  Contact: idnanashi@gmail.com
 #
-#  Version History:
-#  v1.3 2025-09-15
-#       Added GAUGE type definitions, raised graph ceiling to 50, and ensured PostgreSQL
-#       compatibility by counting both postgres and legacy postmaster processes.
-#  v1.2 2025-09-09
-#       POSIX safe process counting via ps comm and simplified autoconf dependencies.
-#  v1.1 2025-08-29
-#       Add MySQL (mysqld / mariadbd) process monitoring (label: mysql).
-#  v1.0 2025-03-26
-#       Refactored for POSIX compliance. Added full header documentation,
-#       improved readability and maintainability with English comments.
-#  v0.1 2018-09-18
-#       Initial version.
-#
 #  Usage:
 #      sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring
 #
@@ -53,6 +39,20 @@
 #      If your system requires privileges for listing firewall rules,
 #      allow the munin user via sudoers, e.g.:
 #      munin ALL=(root) NOPASSWD:/sbin/iptables
+#
+#  Version History:
+#  v1.3 2025-09-15
+#       Added GAUGE type definitions, raised graph ceiling to 50, and ensured PostgreSQL
+#       compatibility by counting both postgres and legacy postmaster processes.
+#  v1.2 2025-09-09
+#       POSIX safe process counting via ps comm and simplified autoconf dependencies.
+#  v1.1 2025-08-29
+#       Add MySQL (mysqld / mariadbd) process monitoring (label: mysql).
+#  v1.0 2025-03-26
+#       Refactored for POSIX compliance. Added full header documentation,
+#       improved readability and maintainability with English comments.
+#  v0.1 2018-09-18
+#       Initial version.
 #
 ########################################################################
 
