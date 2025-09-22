@@ -19,6 +19,27 @@
 #  running as expected. The plugin outputs a graph in Munin showing
 #  the state of required processes.
 #
+#  Toggle targets:
+#    Set the following global variables to 1 or 0 to enable or disable monitoring.
+#    Default is 1 (enabled). You can edit them here or pass via environment
+#    (e.g., in /etc/munin/plugin-conf.d using env.iptables=0).
+#      iptables   = 1  # Monitor iptables rule presence
+#      ntpd       = 1  # Monitor ntpd process
+#      memcached  = 1  # Monitor memcached process
+#      postgres   = 1  # Monitor postgres/postmaster process
+#      mysql      = 1  # Monitor mysqld/mariadbd process
+#      apache2    = 1  # Monitor apache2 process
+#
+#    Example: to disable iptables monitoring, set: iptables=0
+#
+#    You can also override these values via Munin plugin configuration:
+#      /etc/munin/plugin-conf.d/local
+#      [process_monitoring]
+#      env.iptables=0
+#      env.mysql=0
+#
+#    This allows you to manage settings without editing the plugin itself.
+#
 #  Author: id774 (More info: http://id774.net)
 #  Source Code: https://github.com/id774/munin-plugins
 #  License: The GPL version 3, or LGPL version 3 (Dual License).
@@ -41,6 +62,9 @@
 #      munin ALL=(root) NOPASSWD:/sbin/iptables
 #
 #  Version History:
+#  v2.0 2025-09-23
+#       Add simple per-target toggle via global variables with defaults.
+#       Make autoconf conditional on toggles and suppress disabled fields in config/fetch.
 #  v1.3 2025-09-15
 #       Added GAUGE type definitions, raised graph ceiling to 50, and ensured PostgreSQL
 #       compatibility by counting both postgres and legacy postmaster processes.
@@ -55,6 +79,15 @@
 #       Initial version.
 #
 ########################################################################
+
+# --- Target toggles with sane defaults ---
+# Allow override via environment (Munin plugin-conf env.*) or inline edits below.
+: "${iptables:=1}"
+: "${ntpd:=1}"
+: "${memcached:=1}"
+: "${postgres:=1}"
+: "${mysql:=1}"
+: "${apache2:=1}"
 
 # Display full script header information extracted from the top comment block
 usage() {
@@ -76,9 +109,16 @@ autoconf() {
 
     # Check for required commands
     # Note: Do not require service binaries themselves (memcached, etc.)
-    for cmd in ps grep awk iptables; do
+    for cmd in ps grep awk; do
         command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
     done
+
+    # Only require iptables and sudo if iptables monitoring is enabled
+    if [ "${iptables:-1}" -eq 1 ]; then
+        command -v iptables >/dev/null 2>&1 || CONF_ERR=1
+        # sudo may be required to list rules depending on policy
+        command -v sudo >/dev/null 2>&1 || CONF_ERR=1
+    fi
 
     if [ "$CONF_ERR" -eq 0 ]; then
         echo "yes"
@@ -96,43 +136,54 @@ config() {
     echo "graph_vlabel Number of required processes"
     echo "graph_args --lower-limit 0 --upper-limit 20"
 
-    # Define label and graph style/type for each monitored service
-    echo "iptables.label iptables"
-    echo "iptables.type GAUGE"
-    echo "iptables.draw LINE2"
+    # Define label and graph style/type for each monitored service (conditionally)
+    if [ "$iptables" -eq 1 ]; then
+        echo "iptables.label iptables"
+        echo "iptables.type GAUGE"
+        echo "iptables.draw LINE2"
+        echo "iptables.warning 1:"
+        echo "iptables.critical 1:"
+    fi
 
-    echo "ntpd.label ntp"
-    echo "ntpd.type GAUGE"
-    echo "ntpd.draw LINE2"
+    if [ "$ntpd" -eq 1 ]; then
+        echo "ntpd.label ntp"
+        echo "ntpd.type GAUGE"
+        echo "ntpd.draw LINE2"
+        echo "ntpd.warning 1:"
+        echo "ntpd.critical 1:"
+    fi
 
-    echo "memcached.label memcached"
-    echo "memcached.type GAUGE"
-    echo "memcached.draw LINE2"
+    if [ "$memcached" -eq 1 ]; then
+        echo "memcached.label memcached"
+        echo "memcached.type GAUGE"
+        echo "memcached.draw LINE2"
+        echo "memcached.warning 1:"
+        echo "memcached.critical 1:"
+    fi
 
-    echo "postgres.label postgres"
-    echo "postgres.type GAUGE"
-    echo "postgres.draw LINE2"
+    if [ "$postgres" -eq 1 ]; then
+        echo "postgres.label postgres"
+        echo "postgres.type GAUGE"
+        echo "postgres.draw LINE2"
+        echo "postgres.warning 1:"
+        echo "postgres.critical 1:"
+    fi
 
-    echo "mysql.label mysql"
-    echo "mysql.type GAUGE"
-    echo "mysql.draw LINE2"
+    if [ "$mysql" -eq 1 ]; then
+        echo "mysql.label mysql"
+        echo "mysql.type GAUGE"
+        echo "mysql.draw LINE2"
+        echo "mysql.warning 1:"
+        echo "mysql.critical 1:"
+    fi
 
-    echo "apache2.label apache2"
-    echo "apache2.type GAUGE"
-    echo "apache2.draw LINE2"
-
-    echo "iptables.warning 1:"
-    echo "iptables.critical 1:"
-    echo "ntpd.warning 1:"
-    echo "ntpd.critical 1:"
-    echo "memcached.warning 1:"
-    echo "memcached.critical 1:"
-    echo "postgres.warning 1:"
-    echo "postgres.critical 1:"
-    echo "mysql.warning 1:"
-    echo "mysql.critical 1:"
-    echo "apache2.warning 1:"
-    echo "apache2.critical 1:"
+    if [ "$apache2" -eq 1 ]; then
+        echo "apache2.label apache2"
+        echo "apache2.type GAUGE"
+        echo "apache2.draw LINE2"
+        echo "apache2.warning 1:"
+        echo "apache2.critical 1:"
+    fi
 
     return 0
 }
@@ -147,28 +198,35 @@ count_comm() {
 # --- Data collection phase ---
 fetch() {
     # Count iptables rules matching specific description
-    CMD=$(sudo iptables -vn -L 2>/dev/null | grep -c "SET name: SSH side: source")
-    echo "iptables.value $CMD"
+    if [ "$iptables" -eq 1 ]; then
+        CMD=$(sudo iptables -vn -L 2>/dev/null | grep -c "SET name: SSH side: source")
+        echo "iptables.value $CMD"
+    fi
 
-    # Count ntpd processes
-    CMD=$(count_comm ntpd)
-    echo "ntpd.value $CMD"
+    if [ "$ntpd" -eq 1 ]; then
+        CMD=$(count_comm ntpd)
+        echo "ntpd.value $CMD"
+    fi
 
-    # Count memcached processes
-    CMD=$(count_comm memcached)
-    echo "memcached.value $CMD"
+    if [ "$memcached" -eq 1 ]; then
+        CMD=$(count_comm memcached)
+        echo "memcached.value $CMD"
+    fi
 
-    # Count postgres processes (compat: postmaster on older systems)
-    CMD=$(ps -e -o comm= | grep -E -c "^(postgres|postmaster)$")
-    echo "postgres.value $CMD"
+    if [ "$postgres" -eq 1 ]; then
+        CMD=$(ps -e -o comm= | grep -E -c "^(postgres|postmaster)$")
+        echo "postgres.value $CMD"
+    fi
 
-    # Count MySQL compatible servers (mysqld or mariadbd)
-    CMD=$(ps -e -o comm= | grep -E -c "^(mysqld|mariadbd)$")
-    echo "mysql.value $CMD"
+    if [ "$mysql" -eq 1 ]; then
+        CMD=$(ps -e -o comm= | grep -E -c "^(mysqld|mariadbd)$")
+        echo "mysql.value $CMD"
+    fi
 
-    # Count apache2 processes
-    CMD=$(count_comm apache2)
-    echo "apache2.value $CMD"
+    if [ "$apache2" -eq 1 ]; then
+        CMD=$(count_comm apache2)
+        echo "apache2.value $CMD"
+    fi
 
     return 0
 }
