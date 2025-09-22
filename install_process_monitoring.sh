@@ -20,10 +20,14 @@
 #  Notes:
 #  - This script copies 'process_monitoring' to /usr/local/share/munin/plugins
 #    and creates a symlink in /etc/munin/plugins.
+#  - Existing plugin file at destination will be overwritten.
 #  - You must manually configure /etc/sudoers for iptables access if needed.
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v2.1 2025-09-22
+#       Overwrite existing plugin file on install and explicitly prompt the user
+#       to edit the installed plugin in the final message.
 #  v2.0 2025-08-01
 #       Add --uninstall option to remove installed plugin and symlink.
 #  v1.2 2025-06-23
@@ -101,18 +105,18 @@ create_directory() {
 # Copy the plugin to the target plugin directory and make it executable
 install_plugin() {
     if [ -f "$PLUGIN_DST" ]; then
-        echo "[INFO] Plugin already installed at: $PLUGIN_DST"
+        echo "[INFO] Existing plugin found. Overwriting: $PLUGIN_DST"
     else
         echo "[INFO] Installing $PLUGIN_NAME to $PLUGIN_DST."
-        sudo cp "$PLUGIN_SRC" "$PLUGIN_DST" || {
-            echo "[ERROR] Failed to copy plugin to $PLUGIN_DST." >&2
-            exit 1
-        }
-        sudo chmod +x "$PLUGIN_DST" || {
-            echo "[ERROR] Failed to set executable permission on $PLUGIN_DST." >&2
-            exit 1
-        }
     fi
+    sudo cp "$PLUGIN_SRC" "$PLUGIN_DST" || {
+        echo "[ERROR] Failed to copy plugin to $PLUGIN_DST." >&2
+        exit 1
+    }
+    sudo chmod +x "$PLUGIN_DST" || {
+        echo "[ERROR] Failed to set executable permission on $PLUGIN_DST." >&2
+        exit 1
+    }
 }
 
 # Create a symbolic link in /etc/munin/plugins pointing to the installed plugin
@@ -166,14 +170,17 @@ final_message() {
     echo ""
     echo "[INFO] Installation complete."
     echo ""
-    echo " Edit the plugin if you wish to monitor additional processes (e.g., postgres, apache2):"
+    echo " The plugin file has been installed or overwritten:"
     echo "   $PLUGIN_DST"
+    echo ""
+    echo " Please REVIEW AND EDIT the plugin NOW to match your environment (process names, thresholds, labels)."
+    echo " Example targets: postgres postmaster apache2 mysqld mariadbd iptables"
     echo ""
     echo " If you use iptables monitoring, ensure the following line exists in /etc/sudoers:"
     echo "   munin ALL=(ALL) NOPASSWD: /sbin/iptables"
     echo " You can edit safely using: sudo visudo"
     echo ""
-    echo " After editing, reload munin-node:"
+    echo " After editing the plugin, reload munin-node to apply changes:"
     echo "   sudo systemctl restart munin-node"
 }
 
