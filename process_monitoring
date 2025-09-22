@@ -94,7 +94,7 @@ config() {
     echo "graph_category processes"
     echo "graph_title Required processes"
     echo "graph_vlabel Number of required processes"
-    echo "graph_args --lower-limit 0 --upper-limit 50"
+    echo "graph_args --lower-limit 0 --upper-limit 20"
 
     # Define label and graph style/type for each monitored service
     echo "iptables.label iptables"
