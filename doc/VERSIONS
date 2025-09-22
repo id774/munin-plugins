@@ -1,0 +1,18 @@
+munin-plugins Repository Version History
+========================================
+
+v25.09 (Release Date: TBD)
+--------------------------
+- POSIX compliance, standardization, and hardening.
+
+v25.08 (2025-08-01)
+-------------------
+- Added uninstaller.
+
+v25.03 (2025-03-26)
+-------------------
+- Completed process_monitoring plugin and its installer.
+
+First Commit (2013-12-12)
+-------------------------
+- Created repository and initial experiments with simple shell scripts.
