@@ -3,6 +3,7 @@ munin-plugins Repository Version History
 
 v25.09 (Release Date: TBD)
 --------------------------
+- Add per-target toggle variables to process_monitoring allowing on off control
 - POSIX compliance, standardization, and hardening.
 
 v25.08 (2025-08-01)
