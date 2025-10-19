@@ -1,6 +1,10 @@
 munin-plugins Repository Version History
 ========================================
 
+v25.10 (Release Date: TBD)
+--------------------------
+- Standardize all shell scripts by removing trailing exit status lines (exit $?) for POSIX-safe reuse.
+
 v25.09 (2025-09-26)
 -------------------
 - Add per-target toggle variables to process_monitoring allowing on off control.
