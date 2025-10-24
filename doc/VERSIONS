@@ -1,8 +1,8 @@
 munin-plugins Repository Version History
 ========================================
 
-v25.10 (Release Date: TBD)
---------------------------
+v25.10 (2025-10-24)
+-------------------
 - Standardize all shell scripts by removing trailing exit status lines (exit $?) for POSIX-safe reuse.
 
 v25.09 (2025-09-26)
