@@ -1,6 +1,10 @@
 munin-plugins Repository Version History
 ========================================
 
+v26.07 (Release Date: TBD)
+--------------------------
+- Replace the awk {n,} interval expression in usage() with a portable equivalent, since some mawk builds (e.g. Ubuntu 24.04's default /usr/bin/awk) match it incorrectly and silently print an empty help message.
+
 v25.10 (2025-10-24)
 -------------------
 - Standardize all shell scripts by removing trailing exit status lines (exit $?) for POSIX-safe reuse.
