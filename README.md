@@ -29,7 +29,7 @@ This plugin is intended for use on:
 
 ### `process_monitoring`
 
-Monitors the number of active processes or configuration items (like iptables rules). This plugin can be symlinked multiple times with different names (e.g., `files_iptables`, `files_ntpd`, etc.) to monitor specific components individually.
+Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2) can be individually enabled or disabled via toggle variables.
 
 ## Installation
 
