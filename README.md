@@ -11,7 +11,7 @@ More plugins may be added in the future to expand monitoring capabilities.
 ## Features
 
 - **Lightweight and POSIX-compliant shell scripting**
-- **Pluggable architecture via symbolic links**
+- **Single plugin with per-target enable/disable via toggle variables**
 - **Customizable for monitoring any daemon or system process**
 - **Warning and critical threshold support**
 - **Sudo-aware for iptables rule checks**
