@@ -6,6 +6,7 @@ v26.07 (Release Date: TBD)
 - Replace awk {n,} interval expression in usage() with a portable equivalent for mawk compatibility.
 - Apply the same portable awk fix to process_monitoring's usage() function.
 - Fix README's Included Plugin section, which incorrectly implied per-symlink individual monitoring.
+- Update README's Configuration section to document per-target toggle variables instead of symlink names.
 
 v25.10 (2025-10-24)
 -------------------

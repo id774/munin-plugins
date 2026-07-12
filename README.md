@@ -66,7 +66,7 @@ sudo systemctl restart munin-node
 
 ## Configuration
 
-To enable monitoring of specific services, create symbolic links with appropriate names:
+Install the plugin with a single symlink:
 
 ```sh
 sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring
@@ -76,6 +76,14 @@ Then restart `munin-node`:
 
 ```sh
 sudo systemctl restart munin-node
+```
+
+To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgres`, `mysql`, `apache2`), set the corresponding toggle variable via `/etc/munin/plugin-conf.d/local`:
+
+```
+[process_monitoring]
+env.iptables=0
+env.mysql=0
 ```
 
 If monitoring iptables rules, ensure you configure `sudoers` accordingly:
