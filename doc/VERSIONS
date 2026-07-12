@@ -8,6 +8,7 @@ v26.07 (Release Date: TBD)
 - Fix README's Included Plugin section, which incorrectly implied per-symlink individual monitoring.
 - Update README's Configuration section to document per-target toggle variables instead of symlink names.
 - Fix README's Features section, which still claimed a pluggable symlink-based architecture.
+- Remove unused id from check_commands in install_process_monitoring.sh.
 
 v25.10 (2025-10-24)
 -------------------
