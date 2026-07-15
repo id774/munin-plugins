@@ -138,7 +138,7 @@ create_symlink() {
 # Install munin plugins
 install() {
     check_system
-    check_commands sudo cp mkdir chmod ln rm dirname
+    check_commands sudo cp mkdir chmod ln dirname
     check_sudo
     create_directory
     install_plugin

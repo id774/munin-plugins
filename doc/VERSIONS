@@ -9,6 +9,7 @@ v26.07 (Release Date: TBD)
 - Update README's Configuration section to document per-target toggle variables instead of symlink names.
 - Fix README's Features section, which still claimed a pluggable symlink-based architecture.
 - Remove unused id from check_commands in install_process_monitoring.sh.
+- Remove unused rm from check_commands in install_process_monitoring.sh's install path.
 
 v25.10 (2025-10-24)
 -------------------
