@@ -5,11 +5,8 @@ v26.07 (Release Date: TBD)
 --------------------------
 - Replace awk {n,} interval expression in usage() with a portable equivalent for mawk compatibility.
 - Apply the same portable awk fix to process_monitoring's usage() function.
-- Fix README's Included Plugin section, which incorrectly implied per-symlink individual monitoring.
-- Update README's Configuration section to document per-target toggle variables instead of symlink names.
-- Fix README's Features section, which still claimed a pluggable symlink-based architecture.
-- Remove unused id from check_commands in install_process_monitoring.sh.
-- Remove unused rm from check_commands in install_process_monitoring.sh's install path.
+- Fix README's Included Plugin, Configuration, and Features sections to reflect per-target toggle variables instead of a symlink-based architecture.
+- Remove unused id and rm from check_commands in install_process_monitoring.sh.
 
 v25.10 (2025-10-24)
 -------------------
