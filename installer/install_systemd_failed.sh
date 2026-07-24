@@ -14,8 +14,8 @@
 #  Contact: idnanashi@gmail.com
 #
 #  Usage:
-#      ./install_systemd_failed.sh
-#      ./install_systemd_failed.sh --uninstall
+#      ./installer/install_systemd_failed.sh
+#      ./installer/install_systemd_failed.sh --uninstall
 #
 #  Notes:
 #  - This script copies 'systemd_failed' to /usr/local/share/munin/plugins
@@ -172,7 +172,8 @@ final_message() {
 # Main entry point of the script
 main() {
     PLUGIN_NAME="systemd_failed"
-    PLUGIN_SRC="$HOME/munin-plugins/$PLUGIN_NAME"
+    REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+    PLUGIN_SRC="$REPO_ROOT/plugins/$PLUGIN_NAME"
     PLUGIN_DST="/usr/local/share/munin/plugins/$PLUGIN_NAME"
     PLUGIN_LINK="/etc/munin/plugins/$PLUGIN_NAME"
     PLUGIN_DIR=$(dirname "$PLUGIN_DST")

@@ -3,6 +3,7 @@ munin-plugins Repository Version History
 
 v26.07 (Release Date: TBD)
 --------------------------
+- Move plugins under plugins/ and installers under installer/, resolving the plugin source path relative to each installer.
 - Add systemd_failed plugin and its installer to report the number of failed systemd units.
 - Replace awk {n,} interval expression in usage() with a portable equivalent for mawk compatibility.
 - Apply the same portable awk fix to process_monitoring's usage() function.

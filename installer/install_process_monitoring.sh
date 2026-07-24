@@ -14,8 +14,8 @@
 #  Contact: idnanashi@gmail.com
 #
 #  Usage:
-#      ./install_process_monitoring.sh
-#      ./install_process_monitoring.sh --uninstall
+#      ./installer/install_process_monitoring.sh
+#      ./installer/install_process_monitoring.sh --uninstall
 #
 #  Notes:
 #  - This script copies 'process_monitoring' to /usr/local/share/munin/plugins
@@ -190,7 +190,8 @@ final_message() {
 # Main entry point of the script
 main() {
     PLUGIN_NAME="process_monitoring"
-    PLUGIN_SRC="$HOME/munin-plugins/$PLUGIN_NAME"
+    REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+    PLUGIN_SRC="$REPO_ROOT/plugins/$PLUGIN_NAME"
     PLUGIN_DST="/usr/local/share/munin/plugins/$PLUGIN_NAME"
     PLUGIN_LINK="/etc/munin/plugins/$PLUGIN_NAME"
     PLUGIN_DIR=$(dirname "$PLUGIN_DST")
