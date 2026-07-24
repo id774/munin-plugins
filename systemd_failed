@@ -1,0 +1,114 @@
+#!/bin/sh
+
+########################################################################
+# systemd_failed: Munin Plugin for Monitoring Failed systemd Units
+#
+#  This plugin belongs to the 'contrib' family, indicating it is community-maintained.
+#%# family=contrib
+#  This plugin supports Munin's autoconf feature for automatic configuration checks.
+#%# capabilities=autoconf
+#
+#  Description:
+#  This plugin monitors the number of failed systemd units reported by
+#  systemctl. Designed for use with Munin, it reports the count of units
+#  in the failed state, which process presence checks cannot detect.
+#
+#  It helps system administrators notice services that started but later
+#  crashed or exited abnormally. The plugin outputs a single graph in
+#  Munin showing the current number of failed units. A healthy system
+#  reports 0, and any value of 1 or more triggers a warning.
+#
+#  Author: id774 (More info: http://id774.net)
+#  Source Code: https://github.com/id774/munin-plugins
+#  License: The GPL version 3, or LGPL version 3 (Dual License).
+#  Contact: idnanashi@gmail.com
+#
+#  Usage:
+#      sudo ln -s /usr/local/share/munin/plugins/systemd_failed /etc/munin/plugins/systemd_failed
+#
+#      Then reload munin-node:
+#      sudo systemctl restart munin-node
+#
+#  Example:
+#      ./systemd_failed autoconf
+#      ./systemd_failed config
+#      ./systemd_failed
+#
+#  Note:
+#      This plugin requires systemd. On systems without systemctl,
+#      autoconf reports 'no' and the plugin is skipped.
+#
+#  Version History:
+#  v1.0 2026-07-24
+#       Initial version.
+#
+########################################################################
+
+# Display full script header information extracted from the top comment block
+usage() {
+    awk '
+        BEGIN { in_header = 0 }
+        /^#+$/ && length($0) >= 10 { if (!in_header) { in_header = 1; next } else exit }
+        in_header && /^# ?/ {
+            if ($0 ~ /^#%#/) next
+            print substr($0, 3)
+        }
+    ' "$0"
+    return 0
+}
+
+# --- Autoconf check ---
+autoconf() {
+    # Exit code flag for autoconf checks
+    CONF_ERR=0
+
+    # Check for required commands
+    for cmd in systemctl awk; do
+        command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
+    done
+
+    if [ "$CONF_ERR" -eq 0 ]; then
+        echo "yes"
+    else
+        echo "no"
+    fi
+
+    return 0
+}
+
+# --- Munin graph configuration output ---
+config() {
+    echo "graph_category system"
+    echo "graph_title Failed systemd units"
+    echo "graph_vlabel Number of failed units"
+    echo "graph_args --lower-limit 0"
+    echo "failed.label failed"
+    echo "failed.type GAUGE"
+    echo "failed.draw LINE2"
+    echo "failed.warning 0"
+
+    return 0
+}
+
+# --- Data collection phase ---
+fetch() {
+    # Count units reported in the failed state
+    CMD=$(systemctl list-units --state=failed --no-legend --plain 2>/dev/null | grep -c .)
+    echo "failed.value $CMD"
+
+    return 0
+}
+
+# Main entry point of the script
+main() {
+    case "$1" in
+        -h|--help|-v|--version) usage ;;
+        autoconf) autoconf ;;
+        config) config ;;
+        *) fetch ;;
+    esac
+    return $?
+}
+
+# Execute main function
+main "$@"
