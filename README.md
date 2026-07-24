@@ -4,14 +4,15 @@
 
 **munin-plugins** is a collection of custom Munin plugins designed to monitor system processes, services, and application-specific metrics not covered by default Munin plugins.
 
-Currently, this repository includes the `process_monitoring` plugin, which checks for the presence and status of essential processes such as `iptables`, `ntpd`, and `memcached`. It helps ensure that critical services are running and properly configured on your system.
+Each plugin is standalone and managed independently within this single repository. Every plugin ships with its own installer, so you can install or remove only the ones you need.
 
-More plugins may be added in the future to expand monitoring capabilities.
+This repository currently includes `process_monitoring`, which checks the presence of essential processes, and `systemd_failed`, which reports the number of failed systemd units. More plugins may be added in the future to expand monitoring capabilities.
 
 ## Features
 
 - **Lightweight and POSIX-compliant shell scripting**
-- **Single plugin with per-target enable/disable via toggle variables**
+- **Standalone plugins, each with its own installer for independent management**
+- **Per-target enable/disable via toggle variables (process_monitoring)**
 - **Customizable for monitoring any daemon or system process**
 - **Warning and critical threshold support**
 - **Sudo-aware for iptables rule checks**
@@ -25,18 +26,23 @@ This plugin is intended for use on:
 - Environments with `/usr/local/share/munin/plugins` and `/etc/munin/plugins/` available
 - `sudo` privileges configured for Munin if necessary (e.g., iptables monitoring)
 
-## Included Plugin
+## Included Plugins
 
 ### `process_monitoring`
 
 Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2) can be individually enabled or disabled via toggle variables.
 
+### `systemd_failed`
+
+Monitors the number of failed systemd units reported by `systemctl` and reports it in a single graph. A healthy system reports 0, and any value of 1 or more triggers a warning. It detects services that started but later crashed or exited abnormally, which process presence checks cannot catch.
+
 ## Installation
 
-To install `process_monitoring`, execute the provided installation script:
+Each plugin has its own installer. Run the installer for the plugin you want:
 
 ```sh
 ./install_process_monitoring.sh
+./install_systemd_failed.sh
 ```
 
 This will:
@@ -47,10 +53,11 @@ This will:
 
 ## Uninstallation
 
-To remove all installed components of `process_monitoring`, run:
+To remove all installed components of a plugin, run its installer with `--uninstall`:
 
 ```sh
 ./install_process_monitoring.sh --uninstall
+./install_systemd_failed.sh --uninstall
 ```
 
 This will:
@@ -112,6 +119,8 @@ You can customize which processes to monitor by editing the plugin script itself
 .
 ├── process_monitoring             # Munin plugin script
 ├── install_process_monitoring.sh  # Installer script
+├── systemd_failed                 # Munin plugin script
+├── install_systemd_failed.sh      # Installer script
 ```
 
 ## Contribution
