@@ -63,7 +63,7 @@ autoconf() {
     CONF_ERR=0
 
     # Check for required commands
-    for cmd in systemctl awk; do
+    for cmd in systemctl grep awk; do
         command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
     done
 
@@ -92,8 +92,15 @@ config() {
 
 # --- Data collection phase ---
 fetch() {
+    # Return an unknown value when systemctl cannot query the system manager
+    OUTPUT=$(systemctl list-units --state=failed --no-legend --plain 2>/dev/null)
+    if [ "$?" -ne 0 ]; then
+        echo "failed.value U"
+        return 0
+    fi
+
     # Count units reported in the failed state
-    CMD=$(systemctl list-units --state=failed --no-legend --plain 2>/dev/null | grep -c .)
+    CMD=$(printf '%s\n' "$OUTPUT" | grep -c .)
     echo "failed.value $CMD"
 
     return 0
