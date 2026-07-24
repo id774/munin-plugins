@@ -41,8 +41,8 @@ Monitors the number of failed systemd units reported by `systemctl` and reports 
 Each plugin has its own installer. Run the installer for the plugin you want:
 
 ```sh
-./install_process_monitoring.sh
-./install_systemd_failed.sh
+./installer/install_process_monitoring.sh
+./installer/install_systemd_failed.sh
 ```
 
 This will:
@@ -56,8 +56,8 @@ This will:
 To remove all installed components of a plugin, run its installer with `--uninstall`:
 
 ```sh
-./install_process_monitoring.sh --uninstall
-./install_systemd_failed.sh --uninstall
+./installer/install_process_monitoring.sh --uninstall
+./installer/install_systemd_failed.sh --uninstall
 ```
 
 This will:
@@ -117,10 +117,12 @@ You can customize which processes to monitor by editing the plugin script itself
 
 ```
 .
-├── process_monitoring             # Munin plugin script
-├── install_process_monitoring.sh  # Installer script
-├── systemd_failed                 # Munin plugin script
-├── install_systemd_failed.sh      # Installer script
+├── plugins/
+│   ├── process_monitoring             # Munin plugin script
+│   └── systemd_failed                 # Munin plugin script
+├── installer/
+│   ├── install_process_monitoring.sh  # Installer script
+│   └── install_systemd_failed.sh      # Installer script
 ```
 
 ## Contribution
