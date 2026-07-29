@@ -15,7 +15,7 @@ This repository currently includes `process_monitoring`, which checks the presen
 - **Per-target enable/disable via toggle variables (process_monitoring)**
 - **Customizable for monitoring any daemon or system process**
 - **Warning and critical threshold support**
-- **Sudo-aware for iptables rule checks**
+- **No sudo required: privileged checks use munin-node's per-plugin `user` setting**
 
 ## Supported Environments
 
@@ -24,7 +24,7 @@ This plugin is intended for use on:
 - **Linux (Debian, Ubuntu, CentOS, etc.)**
 - Munin-node installed and configured
 - Environments with `/usr/local/share/munin/plugins` and `/etc/munin/plugins/` available
-- `sudo` privileges configured for Munin if necessary (e.g., iptables monitoring)
+- Privileged checks (e.g., iptables monitoring) configured via `/etc/munin/plugin-conf.d/`
 
 ## Included Plugins
 
@@ -94,17 +94,92 @@ env.mysql=0
 env.xrdp=1
 ```
 
-If monitoring iptables rules, ensure you configure `sudoers` accordingly:
+### Granting privileges for iptables monitoring
+
+Listing firewall rules requires root. **The plugin does not call `sudo`.** Instead,
+grant the privilege through munin-node itself: munin-node runs as root and drops
+privileges separately for each plugin, so it can simply be told to keep root for
+this one.
+
+Add the following to `/etc/munin/plugin-conf.d/local` (create the file if it does
+not exist; any filename in that directory works, and the section name must match
+the plugin's symlink name):
+
+```
+[process_monitoring]
+user root
+```
+
+Restart munin-node so the new setting is read:
+
+```sh
+sudo systemctl restart munin-node
+```
+
+Then verify that the plugin can actually read the rules. `munin-run` applies the
+same `plugin-conf.d` settings that munin-node uses, so this reproduces the real
+execution environment:
+
+```sh
+sudo munin-run process_monitoring
+```
+
+A working setup prints a non-zero `iptables.value`. If it prints `iptables.value 0`
+while your firewall is populated, the plugin is still running unprivileged — check
+that the section name matches the symlink in `/etc/munin/plugins/` and that
+munin-node was restarted.
+
+#### Do not use a sudoers rule
+
+Earlier versions of this plugin invoked `sudo iptables` and documented a sudoers
+entry such as:
+
+```sh
+# DO NOT USE - kept here only so it can be recognized and removed
+munin ALL=(ALL) NOPASSWD: /sbin/iptables
+```
+
+That rule is unrestricted: it permits any `iptables` invocation, including
+`iptables -F`, which flushes the firewall. Granting it to the munin account turns
+a read-only monitoring need into an effective privilege escalation path. If you
+configured it for a previous version, remove it:
 
 ```sh
 sudo visudo
 ```
 
-Add the following line:
+If running the whole plugin as root is not acceptable in your environment, disable
+the iptables target instead with `env.iptables=0` and monitor the firewall
+separately.
+
+#### Narrowing the privilege further (optional)
+
+`user root` applies to the entire plugin, including the process counting targets
+that do not need it. If you prefer to keep the privilege scoped, install a second
+symlink dedicated to iptables and grant root only to that one:
 
 ```sh
-munin ALL=(ALL) NOPASSWD: /sbin/iptables
+sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring_iptables
 ```
+
+```
+[process_monitoring]
+user munin
+env.iptables=0
+
+[process_monitoring_iptables]
+user root
+env.iptables=1
+env.ntpd=0
+env.memcached=0
+env.postgres=0
+env.mysql=0
+env.apache2=0
+env.xrdp=0
+```
+
+This produces two graphs, so adopt it only if the separation is worth the extra
+graph.
 
 ## Usage Example
 
