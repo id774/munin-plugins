@@ -62,9 +62,29 @@
 #      ./process_monitoring
 #
 #  Note:
-#      If your system requires privileges for listing firewall rules,
-#      allow the munin user via sudoers, e.g.:
-#      munin ALL=(root) NOPASSWD:/sbin/iptables
+#      Listing firewall rules requires root privileges. This plugin does NOT
+#      call sudo. Instead, grant the privilege through munin-node, which runs
+#      as root and drops privileges per plugin. Add the following to
+#      /etc/munin/plugin-conf.d/local (or any file in that directory):
+#
+#        [process_monitoring]
+#        user root
+#
+#      Then restart munin-node:
+#        sudo systemctl restart munin-node
+#
+#      Verify with:
+#        sudo munin-run process_monitoring
+#
+#      Do NOT grant the munin user blanket sudo access to iptables. A rule such
+#      as 'munin ALL=(ALL) NOPASSWD: /sbin/iptables' lets that account run
+#      'iptables -F' and flush the firewall, which is effectively a privilege
+#      escalation. If a previous installation added such a line to sudoers,
+#      remove it with 'sudo visudo' after switching to 'user root'.
+#
+#      If running the whole plugin as root is unacceptable, disable the
+#      iptables target with env.iptables=0 and monitor the firewall from a
+#      dedicated plugin instead.
 #
 #      The xrdp target counts the xrdp listener process only. The session
 #      manager (xrdp-sesman) runs as a separate process and is not counted,
@@ -72,6 +92,10 @@
 #      per-session xrdp processes are spawned.
 #
 #  Version History:
+#  v2.3 2026-07-29
+#       Stop invoking sudo for iptables rule listing. The plugin now relies on
+#       munin-node's per-plugin 'user root' setting, so the munin account no
+#       longer needs blanket sudo access to iptables.
 #  v2.2 2026-07-29
 #       Add xrdp process monitoring (label: xrdp), disabled by default.
 #  v2.1 2026-07-12
@@ -129,11 +153,11 @@ autoconf() {
         command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
     done
 
-    # Only require iptables and sudo if iptables monitoring is enabled
+    # Only require iptables if iptables monitoring is enabled
+    # Note: listing rules also requires root, granted via 'user root' in
+    # /etc/munin/plugin-conf.d/local rather than sudo
     if [ "${iptables:-1}" -eq 1 ]; then
         command -v iptables >/dev/null 2>&1 || CONF_ERR=1
-        # sudo may be required to list rules depending on policy
-        command -v sudo >/dev/null 2>&1 || CONF_ERR=1
     fi
 
     if [ "$CONF_ERR" -eq 0 ]; then
@@ -222,8 +246,9 @@ count_comm() {
 # --- Data collection phase ---
 fetch() {
     # Count iptables rules matching specific description
+    # Requires root; see the Note in the header for the 'user root' setting
     if [ "$iptables" -eq 1 ]; then
-        CMD=$(sudo iptables -vn -L 2>/dev/null | grep -c "SET name: SSH side: source")
+        CMD=$(iptables -vn -L 2>/dev/null | grep -c "SET name: SSH side: source")
         echo "iptables.value $CMD"
     fi
 

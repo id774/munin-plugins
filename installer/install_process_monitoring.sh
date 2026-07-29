@@ -21,10 +21,15 @@
 #  - This script copies 'process_monitoring' to /usr/local/share/munin/plugins
 #    and creates a symlink in /etc/munin/plugins.
 #  - Existing plugin file at destination will be overwritten.
-#  - You must manually configure /etc/sudoers for iptables access if needed.
+#  - Grant root to the plugin via 'user root' in /etc/munin/plugin-conf.d/local
+#    if you monitor iptables rules. The plugin does not call sudo, and no
+#    sudoers entry is required.
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v2.3 2026-07-29
+#       Replace the sudoers guidance in the post-install message with the
+#       munin-node 'user root' setting, matching the plugin's removal of sudo.
 #  v2.2 2026-07-11
 #       Replace the awk {n,} interval expression in usage() with a portable
 #       equivalent, since mawk on some systems matches it incorrectly.
@@ -179,12 +184,22 @@ final_message() {
     echo " Please REVIEW AND EDIT the plugin NOW to match your environment (process names, thresholds, labels)."
     echo " Example targets: postgres postmaster apache2 mysqld mariadbd iptables xrdp"
     echo ""
-    echo " If you use iptables monitoring, ensure the following line exists in /etc/sudoers:"
-    echo "   munin ALL=(ALL) NOPASSWD: /sbin/iptables"
-    echo " You can edit safely using: sudo visudo"
+    echo " If you use iptables monitoring, the plugin must run as root."
+    echo " It does NOT call sudo. Grant the privilege through munin-node by adding"
+    echo " the following to /etc/munin/plugin-conf.d/local:"
+    echo ""
+    echo "   [process_monitoring]"
+    echo "   user root"
+    echo ""
+    echo " Do NOT add a sudoers rule such as 'munin ALL=(ALL) NOPASSWD: /sbin/iptables'."
+    echo " It would let the munin account flush the firewall with 'iptables -F'."
+    echo " If an earlier installation added that line, remove it with: sudo visudo"
     echo ""
     echo " After editing the plugin, reload munin-node to apply changes:"
     echo "   sudo systemctl restart munin-node"
+    echo ""
+    echo " Then verify the output with:"
+    echo "   sudo munin-run process_monitoring"
 }
 
 # Main entry point of the script
