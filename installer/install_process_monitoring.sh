@@ -177,7 +177,7 @@ final_message() {
     echo "   $PLUGIN_DST"
     echo ""
     echo " Please REVIEW AND EDIT the plugin NOW to match your environment (process names, thresholds, labels)."
-    echo " Example targets: postgres postmaster apache2 mysqld mariadbd iptables"
+    echo " Example targets: postgres postmaster apache2 mysqld mariadbd iptables xrdp"
     echo ""
     echo " If you use iptables monitoring, ensure the following line exists in /etc/sudoers:"
     echo "   munin ALL=(ALL) NOPASSWD: /sbin/iptables"
