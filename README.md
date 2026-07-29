@@ -30,7 +30,7 @@ This plugin is intended for use on:
 
 ### `process_monitoring`
 
-Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, xrdp) can be individually enabled or disabled via toggle variables.
+Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, xrdp) can be individually enabled or disabled via toggle variables. All targets are enabled by default except `xrdp`, which must be turned on explicitly with `env.xrdp=1`.
 
 ### `systemd_failed`
 
@@ -91,7 +91,7 @@ To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgre
 [process_monitoring]
 env.iptables=0
 env.mysql=0
-env.xrdp=0
+env.xrdp=1
 ```
 
 If monitoring iptables rules, ensure you configure `sudoers` accordingly:
