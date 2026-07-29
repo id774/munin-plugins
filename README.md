@@ -30,7 +30,7 @@ This plugin is intended for use on:
 
 ### `process_monitoring`
 
-Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2) can be individually enabled or disabled via toggle variables.
+Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, xrdp) can be individually enabled or disabled via toggle variables.
 
 ### `systemd_failed`
 
@@ -85,12 +85,13 @@ Then restart `munin-node`:
 sudo systemctl restart munin-node
 ```
 
-To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgres`, `mysql`, `apache2`), set the corresponding toggle variable via `/etc/munin/plugin-conf.d/local`:
+To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgres`, `mysql`, `apache2`, `xrdp`), set the corresponding toggle variable via `/etc/munin/plugin-conf.d/local`:
 
 ```
 [process_monitoring]
 env.iptables=0
 env.mysql=0
+env.xrdp=0
 ```
 
 If monitoring iptables rules, ensure you configure `sudoers` accordingly:
