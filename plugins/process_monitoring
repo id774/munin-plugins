@@ -23,7 +23,7 @@
 #  Toggle targets:
 #    Set the following global variables to 1 or 0 to enable or disable monitoring.
 #    Default is 1 (enabled) except where noted. You can edit them here or
-#    pass via environment (e.g., in /etc/munin/plugin-conf.d using env.iptables=0).
+#    pass via environment (e.g., in /etc/munin/plugin-conf.d using env.iptables 0).
 #      iptables   = 1  # Monitor iptables rule presence
 #      ntpd       = 1  # Monitor ntpd process
 #      memcached  = 1  # Monitor memcached process
@@ -33,18 +33,31 @@
 #      sshd       = 1  # Monitor sshd process
 #      xrdp       = 0  # Monitor xrdp process (disabled by default)
 #
+#    When editing this file, the values are plain shell assignments:
 #    Example: to disable iptables monitoring, set: iptables=0
 #    Example: to enable xrdp monitoring, set: xrdp=1
 #
 #    You can also override these values via Munin plugin configuration:
 #      /etc/munin/plugin-conf.d/local
 #      [process_monitoring]
-#      env.iptables=0
-#      env.mysql=0
-#      env.xrdp=1
+#      env.iptables 0
+#      env.mysql 0
+#      env.xrdp 1
 #
 #    This allows you to manage settings without editing the plugin itself.
 #    If both are defined, the environment variable (plugin-conf.d setting) takes precedence.
+#
+#    IMPORTANT: separate the variable name and the value with WHITESPACE, not
+#    '='. Munin's plugin-conf.d parser expects 'env.NAME VALUE'. A line written
+#    as 'env.xrdp=1' does not parse, and the failure is not limited to that one
+#    line: munin-node aborts the file at that point and silently drops every
+#    remaining directive in it, including any 'user root' that follows. The
+#    plugin then keeps running with its built-in defaults, which looks exactly
+#    like the setting being ignored. 'env.xrdp = 1' is wrong too, because the
+#    value is taken verbatim and becomes '= 1' instead of '1'.
+#
+#    To confirm the file parses, run 'sudo munin-run process_monitoring config'
+#    and check that no 'Line is not well formed' warning is printed.
 #
 #  Author: id774 (More info: http://id774.net)
 #  Source Code: https://github.com/id774/munin-plugins
@@ -84,7 +97,7 @@
 #      remove it with 'sudo visudo' after switching to 'user root'.
 #
 #      If running the whole plugin as root is unacceptable, disable the
-#      iptables target with env.iptables=0 and monitor the firewall from a
+#      iptables target with env.iptables 0 and monitor the firewall from a
 #      dedicated plugin instead.
 #
 #      The xrdp target counts the xrdp listener process only. The session
@@ -100,7 +113,7 @@
 #      If sshd is socket-activated (systemd ssh.socket / sshd.socket, the
 #      default on recent Ubuntu releases) no listener runs while the system
 #      is idle, so this target reports 0 and trips the critical threshold.
-#      Disable it with env.sshd=0 on such hosts and monitor the socket unit
+#      Disable it with env.sshd 0 on such hosts and monitor the socket unit
 #      instead, e.g. with the systemd_failed plugin.
 #
 #  Version History:

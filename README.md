@@ -30,9 +30,9 @@ This plugin is intended for use on:
 
 ### `process_monitoring`
 
-Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, sshd, xrdp) can be individually enabled or disabled via toggle variables. All targets are enabled by default except `xrdp`, which must be turned on explicitly with `env.xrdp=1`.
+Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, sshd, xrdp) can be individually enabled or disabled via toggle variables. All targets are enabled by default except `xrdp`, which must be turned on explicitly with `env.xrdp 1`.
 
-Note that the `sshd` target counts running `sshd` processes. If `sshd` is socket-activated (systemd `ssh.socket` / `sshd.socket`, the default on recent Ubuntu releases), no listener runs while the system is idle, so the target reports 0 and trips the critical threshold. Set `env.sshd=0` on such hosts.
+Note that the `sshd` target counts running `sshd` processes. If `sshd` is socket-activated (systemd `ssh.socket` / `sshd.socket`, the default on recent Ubuntu releases), no listener runs while the system is idle, so the target reports 0 and trips the critical threshold. Set `env.sshd 0` on such hosts.
 
 ### `systemd_failed`
 
@@ -91,10 +91,18 @@ To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgre
 
 ```
 [process_monitoring]
-env.iptables=0
-env.mysql=0
-env.xrdp=1
+env.iptables 0
+env.mysql 0
+env.xrdp 1
 ```
+
+Restart `munin-node` afterwards, since plugin configuration is read at startup.
+
+**Separate the name and the value with whitespace, not `=`.** Munin's
+plugin-conf.d parser accepts only `env.NAME VALUE`. `env.xrdp=1` is rejected,
+and `env.xrdp = 1` assigns the literal value `= 1`. This is the most common
+reason the toggles appear to be ignored — see
+[Troubleshooting](#troubleshooting-the-toggles-have-no-effect) below.
 
 ### Granting privileges for iptables monitoring
 
@@ -151,7 +159,7 @@ sudo visudo
 ```
 
 If running the whole plugin as root is not acceptable in your environment, disable
-the iptables target instead with `env.iptables=0` and monitor the firewall
+the iptables target instead with `env.iptables 0` and monitor the firewall
 separately.
 
 #### Narrowing the privilege further (optional)
@@ -167,22 +175,66 @@ sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/
 ```
 [process_monitoring]
 user munin
-env.iptables=0
+env.iptables 0
 
 [process_monitoring_iptables]
 user root
-env.iptables=1
-env.ntpd=0
-env.memcached=0
-env.postgres=0
-env.mysql=0
-env.apache2=0
-env.sshd=0
-env.xrdp=0
+env.iptables 1
+env.ntpd 0
+env.memcached 0
+env.postgres 0
+env.mysql 0
+env.apache2 0
+env.sshd 0
+env.xrdp 0
 ```
 
 This produces two graphs, so adopt it only if the separation is worth the extra
 graph.
+
+### Troubleshooting: the toggles have no effect
+
+If the plugin keeps reporting its built-in defaults after you edited
+`/etc/munin/plugin-conf.d/local`, check the syntax of the file first. Munin
+parses each directive as `NAME VALUE` separated by whitespace:
+
+```
+env.xrdp 1      # correct
+env.xrdp=1      # rejected: the line does not parse
+env.xrdp = 1    # parses, but the value becomes "= 1", not "1"
+```
+
+A rejected line is not skipped in isolation. munin-node stops reading the file
+at that point and discards every directive after it, so a `user root` placed
+below a malformed `env.` line stops applying as well, and the iptables target
+starts reporting 0.
+
+Run the plugin the way munin-node does to see the parse error:
+
+```sh
+sudo munin-run process_monitoring config
+```
+
+A malformed file reports something like:
+
+```
+Line is not well formed (env.xrdp=1) at /etc/munin/plugin-conf.d/local line 3. Skipping the rest of the file
+```
+
+Once the file parses cleanly, the `config` output reflects the toggles: disabled
+targets have no `*.label` line, and enabled ones do. Restart `munin-node` so the
+node itself picks up the change:
+
+```sh
+sudo systemctl restart munin-node
+```
+
+Two further points if `config` already looks right but the graph does not:
+
+- Newly enabled targets appear on the master's next run (up to five minutes).
+- Disabled targets keep their existing RRD files, so the master may keep drawing
+  the old data series until those files are removed from
+  `/var/lib/munin/<group>/<host>-<plugin>-<field>-g.rrd`.
 
 ## Usage Example
 
