@@ -87,11 +87,30 @@ Then restart `munin-node`:
 sudo systemctl restart munin-node
 ```
 
-To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgres`, `mysql`, `apache2`, `sshd`, `xrdp`), set the corresponding toggle variable via `/etc/munin/plugin-conf.d/local`:
+Each target is enabled or disabled with its own toggle variable, set via
+`/etc/munin/plugin-conf.d/local`. The following block lists every target at its
+default value, so it can be copied in as-is and edited in place:
 
 ```
 [process_monitoring]
-env.iptables 0
+env.iptables 1
+env.ntpd 1
+env.memcached 1
+env.postgres 1
+env.mysql 1
+env.apache2 1
+env.sshd 1
+env.xrdp 0
+```
+
+`1` enables a target, `0` disables it. All targets default to `1` except `xrdp`,
+which defaults to `0`. Listing every variable is optional — anything left out
+keeps its default — so a minimal configuration that turns off the two database
+targets and turns on xrdp is just:
+
+```
+[process_monitoring]
+env.postgres 0
 env.mysql 0
 env.xrdp 1
 ```

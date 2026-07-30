@@ -37,12 +37,22 @@
 #    Example: to disable iptables monitoring, set: iptables=0
 #    Example: to enable xrdp monitoring, set: xrdp=1
 #
-#    You can also override these values via Munin plugin configuration:
-#      /etc/munin/plugin-conf.d/local
+#    You can also override these values via Munin plugin configuration.
+#    The block below lists every target at its default value, so it can be
+#    copied into /etc/munin/plugin-conf.d/local as-is and edited in place:
+#
 #      [process_monitoring]
-#      env.iptables 0
-#      env.mysql 0
-#      env.xrdp 1
+#      env.iptables 1
+#      env.ntpd 1
+#      env.memcached 1
+#      env.postgres 1
+#      env.mysql 1
+#      env.apache2 1
+#      env.sshd 1
+#      env.xrdp 0
+#
+#    Only the targets you actually want to change need to be listed; any
+#    variable left out keeps the default shown above.
 #
 #    This allows you to manage settings without editing the plugin itself.
 #    If both are defined, the environment variable (plugin-conf.d setting) takes precedence.
