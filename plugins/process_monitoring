@@ -13,8 +13,8 @@
 #  processes and configuration rules. Designed for use with Munin,
 #  it reports the number of running instances or matching configurations,
 #  such as iptables rules, ntpd, memcached, postgres (or postmaster),
-#  apache2, MySQL-compatible servers (mysqld / mariadbd), and the xrdp
-#  remote desktop server.
+#  apache2, MySQL-compatible servers (mysqld / mariadbd), the OpenSSH
+#  daemon (sshd), and the xrdp remote desktop server.
 #
 #  It helps system administrators ensure that critical services are
 #  running as expected. The plugin outputs a graph in Munin showing
@@ -30,6 +30,7 @@
 #      postgres   = 1  # Monitor postgres/postmaster process
 #      mysql      = 1  # Monitor mysqld/mariadbd process
 #      apache2    = 1  # Monitor apache2 process
+#      sshd       = 1  # Monitor sshd process
 #      xrdp       = 0  # Monitor xrdp process (disabled by default)
 #
 #    Example: to disable iptables monitoring, set: iptables=0
@@ -91,7 +92,20 @@
 #      so the value stays at 1 while no user is connected and grows as
 #      per-session xrdp processes are spawned.
 #
+#      The sshd target counts processes named exactly 'sshd', which is the
+#      listener plus, on OpenSSH older than 9.8, one process per active
+#      connection. OpenSSH 9.8 and later names per-connection children
+#      'sshd-session', so those are not counted and the value stays at 1.
+#
+#      If sshd is socket-activated (systemd ssh.socket / sshd.socket, the
+#      default on recent Ubuntu releases) no listener runs while the system
+#      is idle, so this target reports 0 and trips the critical threshold.
+#      Disable it with env.sshd=0 on such hosts and monitor the socket unit
+#      instead, e.g. with the systemd_failed plugin.
+#
 #  Version History:
+#  v2.4 2026-07-30
+#       Add sshd process monitoring (label: sshd).
 #  v2.3 2026-07-29
 #       Stop invoking sudo for iptables rule listing. The plugin now relies on
 #       munin-node's per-plugin 'user root' setting, so the munin account no
@@ -127,6 +141,7 @@
 : "${postgres:=1}"
 : "${mysql:=1}"
 : "${apache2:=1}"
+: "${sshd:=1}"
 : "${xrdp:=0}"
 
 # Display full script header information extracted from the top comment block
@@ -225,6 +240,14 @@ config() {
         echo "apache2.critical 1:"
     fi
 
+    if [ "$sshd" -eq 1 ]; then
+        echo "sshd.label sshd"
+        echo "sshd.type GAUGE"
+        echo "sshd.draw LINE2"
+        echo "sshd.warning 1:"
+        echo "sshd.critical 1:"
+    fi
+
     if [ "$xrdp" -eq 1 ]; then
         echo "xrdp.label xrdp"
         echo "xrdp.type GAUGE"
@@ -275,6 +298,11 @@ fetch() {
     if [ "$apache2" -eq 1 ]; then
         CMD=$(count_comm apache2)
         echo "apache2.value $CMD"
+    fi
+
+    if [ "$sshd" -eq 1 ]; then
+        CMD=$(count_comm sshd)
+        echo "sshd.value $CMD"
     fi
 
     if [ "$xrdp" -eq 1 ]; then

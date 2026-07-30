@@ -4,6 +4,7 @@ munin-plugins Repository Version History
 v26.07 (Release Date: TBD)
 --------------------------
 - Stop calling sudo from process_monitoring and document munin-node's 'user root' setting instead, so the munin account no longer needs blanket sudo access to iptables.
+- Add sshd process monitoring to process_monitoring with its own toggle variable, enabled by default.
 - Add xrdp process monitoring to process_monitoring with its own toggle variable, disabled by default.
 - Move plugins under plugins/ and installers under installer/, resolving the plugin source path relative to each installer.
 - Add systemd_failed plugin and its installer to report the number of failed systemd units.
