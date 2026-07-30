@@ -182,7 +182,7 @@ final_message() {
     echo "   $PLUGIN_DST"
     echo ""
     echo " Please REVIEW AND EDIT the plugin NOW to match your environment (process names, thresholds, labels)."
-    echo " Example targets: postgres postmaster apache2 mysqld mariadbd iptables xrdp"
+    echo " Example targets: postgres postmaster apache2 mysqld mariadbd iptables sshd xrdp"
     echo ""
     echo " If you use iptables monitoring, the plugin must run as root."
     echo " It does NOT call sudo. Grant the privilege through munin-node by adding"

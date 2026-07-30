@@ -30,7 +30,9 @@ This plugin is intended for use on:
 
 ### `process_monitoring`
 
-Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, xrdp) can be individually enabled or disabled via toggle variables. All targets are enabled by default except `xrdp`, which must be turned on explicitly with `env.xrdp=1`.
+Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, sshd, xrdp) can be individually enabled or disabled via toggle variables. All targets are enabled by default except `xrdp`, which must be turned on explicitly with `env.xrdp=1`.
+
+Note that the `sshd` target counts running `sshd` processes. If `sshd` is socket-activated (systemd `ssh.socket` / `sshd.socket`, the default on recent Ubuntu releases), no listener runs while the system is idle, so the target reports 0 and trips the critical threshold. Set `env.sshd=0` on such hosts.
 
 ### `systemd_failed`
 
@@ -85,7 +87,7 @@ Then restart `munin-node`:
 sudo systemctl restart munin-node
 ```
 
-To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgres`, `mysql`, `apache2`, `xrdp`), set the corresponding toggle variable via `/etc/munin/plugin-conf.d/local`:
+To enable or disable specific targets (`iptables`, `ntpd`, `memcached`, `postgres`, `mysql`, `apache2`, `sshd`, `xrdp`), set the corresponding toggle variable via `/etc/munin/plugin-conf.d/local`:
 
 ```
 [process_monitoring]
@@ -175,6 +177,7 @@ env.memcached=0
 env.postgres=0
 env.mysql=0
 env.apache2=0
+env.sshd=0
 env.xrdp=0
 ```
 
