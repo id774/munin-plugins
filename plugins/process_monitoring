@@ -129,6 +129,8 @@
 #  Version History:
 #  v3.0 2026-07-30
 #       Add sshd process monitoring (label: sshd).
+#       Correct the documented plugin-conf.d toggle syntax and list every target.
+#       Rename the ntpd field label from 'ntp' to 'ntpd' to match the field name.
 #  v2.2 2026-07-29
 #       Add xrdp process monitoring (label: xrdp), disabled by default.
 #       Stop invoking sudo for iptables rule listing. The plugin now relies on
@@ -223,7 +225,7 @@ config() {
     fi
 
     if [ "$ntpd" -eq 1 ]; then
-        echo "ntpd.label ntp"
+        echo "ntpd.label ntpd"
         echo "ntpd.type GAUGE"
         echo "ntpd.draw LINE2"
         echo "ntpd.warning 1:"

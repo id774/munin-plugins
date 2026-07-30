@@ -30,6 +30,7 @@
 #  v2.3 2026-07-29
 #       Replace the sudoers guidance in the post-install message with the
 #       munin-node 'user root' setting, matching the plugin's removal of sudo.
+#       Drop the unused id and rm checks from the install path command list.
 #  v2.2 2026-07-11
 #       Replace the awk {n,} interval expression in usage() with a portable
 #       equivalent, since mawk on some systems matches it incorrectly.
