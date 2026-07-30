@@ -129,6 +129,7 @@
 #  Version History:
 #  v3.0 2026-07-30
 #       Add sshd process monitoring (label: sshd).
+#       Correct the documented plugin-conf.d toggle syntax and list every target.
 #  v2.2 2026-07-29
 #       Add xrdp process monitoring (label: xrdp), disabled by default.
 #       Stop invoking sudo for iptables rule listing. The plugin now relies on
