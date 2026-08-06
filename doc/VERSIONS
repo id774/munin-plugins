@@ -1,6 +1,10 @@
 munin-plugins Repository Version History
 ========================================
 
+v26.08 (Release Date: TBD)
+--------------------------
+- Add the shared version history description guidelines to the end of this file.
+
 v26.07 (2026-07-31)
 -------------------
 - Stop calling sudo from process_monitoring and document munin-node's 'user root' setting instead, so the munin account no longer needs blanket sudo access to iptables.
@@ -33,3 +37,18 @@ v25.03 (2025-03-26)
 First Commit (2013-12-12)
 -------------------------
 - Created repository and initial experiments with simple shell scripts.
+
+Version History Guidelines
+==========================
+- Write one coherent change per physical line.
+- Keep entries near 100 columns where practical. Necessary file names,
+  command names, option names, and configuration names may extend an entry
+  to approximately 120 columns.
+- When an entry becomes substantially longer, omit or abstract implementation
+  details, examples, reasons, and secondary effects where possible.
+- Preserve the changed target, externally observable behavior, compatibility
+  or security impact, and important option or configuration names.
+- Combine related changes within the same version, especially changes to the
+  same file or feature.
+- Place closely related entries near each other.
+- Append an independent new change to the end of the current version entry.
