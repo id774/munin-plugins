@@ -1,5 +1,19 @@
 # munin-plugins
 
+## Contents
+
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Supported Environments](#supported-environments)
+4. [Included Plugins](#included-plugins)
+5. [Installation](#installation)
+6. [Uninstallation](#uninstallation)
+7. [Configuration](#configuration)
+8. [Usage Example](#usage-example)
+9. [Directory Structure](#directory-structure)
+10. [Contribution](#contribution)
+11. [License](#license)
+
 ## Overview
 
 **munin-plugins** is a collection of custom Munin plugins designed to monitor system processes, services, and application-specific metrics not covered by default Munin plugins.
