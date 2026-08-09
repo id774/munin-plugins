@@ -263,17 +263,35 @@ The plugin is invoked as `process_monitoring` and provides a single graph showin
 
 You can customize which processes to monitor by editing the plugin script itself.
 
-## Repository Structure
+## Directory Structure
+
+This section describes the main directories of the repository and what each one
+is for. It is not a complete file listing: only the entries worth knowing about
+before installing or adding a plugin are shown.
 
 ```
 .
-├── plugins/
-│   ├── process_monitoring             # Munin plugin script
-│   └── systemd_failed                 # Munin plugin script
-├── installer/
-│   ├── install_process_monitoring.sh  # Installer script
-│   └── install_systemd_failed.sh      # Installer script
+├── plugins/                           The plugins themselves, one POSIX shell script each.
+│   ├── process_monitoring             Counts processes and iptables rules per target.
+│   └── systemd_failed                 Counts failed systemd units.
+├── installer/                         One installer per plugin, each also handling --uninstall.
+│   ├── install_process_monitoring.sh
+│   └── install_systemd_failed.sh
+└── doc/
+    ├── VERSIONS                       Version history of the repository.
+    ├── LICENSE                        License notice.
+    ├── COPYING                        GPL version 3 text.
+    └── COPYING.LESSER                 LGPL version 3 text.
 ```
+
+The layout is deliberately flat: a plugin is a single file under `plugins/` with
+a matching `installer/install_<name>.sh`, and nothing is shared between plugins.
+That is what makes them installable and removable one at a time. A new plugin is
+added as that same pair of files.
+
+A plugin script carries no configuration of its own. Everything a site changes
+lives outside the repository, in `/etc/munin/plugin-conf.d/` — see
+[Configuration](#configuration).
 
 ## Contribution
 
