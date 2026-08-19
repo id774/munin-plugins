@@ -50,7 +50,7 @@ Note that the `sshd` target counts running `sshd` processes. If `sshd` is socket
 
 ### `systemd_failed`
 
-Monitors the number of failed systemd units reported by `systemctl` and reports it in a single graph. A healthy system reports 0, and any value of 1 or more triggers a warning. It detects services that started but later crashed or exited abnormally, which process presence checks cannot catch.
+Monitors the number of failed systemd units reported by `systemctl` and reports it in a single graph. A healthy system reports 0, and any value of 1 or more triggers a warning. It detects services that started but later crashed or exited abnormally, which process presence checks cannot catch. Its automatic configuration check enables the plugin only when `systemctl` can query the system manager.
 
 ## Installation
 
