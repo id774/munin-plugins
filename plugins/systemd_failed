@@ -35,10 +35,12 @@
 #      ./systemd_failed
 #
 #  Note:
-#      This plugin requires systemd. On systems without systemctl,
-#      autoconf reports 'no' and the plugin is skipped.
+#      This plugin requires a reachable systemd system manager. If systemctl
+#      is missing or cannot query the manager, autoconf reports 'no'.
 #
 #  Version History:
+#  v1.1 2026-08-19
+#       Require autoconf to verify that systemctl can query the system manager.
 #  v1.0 2026-07-24
 #       Initial version.
 #
@@ -66,6 +68,11 @@ autoconf() {
     for cmd in systemctl grep awk; do
         command -v "$cmd" >/dev/null 2>&1 || CONF_ERR=1
     done
+
+    # Verify that systemctl can query the system manager
+    if [ "$CONF_ERR" -eq 0 ]; then
+        systemctl list-units --state=failed --no-legend --plain >/dev/null 2>&1 || CONF_ERR=1
+    fi
 
     if [ "$CONF_ERR" -eq 0 ]; then
         echo "yes"
