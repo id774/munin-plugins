@@ -9,316 +9,248 @@
 5. [Installation](#installation)
 6. [Uninstallation](#uninstallation)
 7. [Configuration](#configuration)
-8. [Usage Example](#usage-example)
-9. [Directory Structure](#directory-structure)
-10. [Contribution](#contribution)
-11. [License](#license)
+8. [Policy](#policy)
+9. [Feature Reference](#feature-reference)
+10. [Usage Example](#usage-example)
+11. [Directory Structure](#directory-structure)
+12. [Contribution](#contribution)
+13. [License](#license)
 
 ## Overview
 
-**munin-plugins** is a collection of custom Munin plugins designed to monitor system processes, services, and application-specific metrics not covered by default Munin plugins.
+**munin-plugins** is a collection of custom Munin plugins for monitoring
+system processes, services, and application-specific conditions not covered
+by the default Munin plugins used by a deployment.
 
-Each plugin is standalone and managed independently within this single repository. Every plugin ships with its own installer, so you can install or remove only the ones you need.
+Each plugin is independently installable and has its own installer.
 
-This repository currently includes `process_monitoring`, which checks the presence of essential processes, and `systemd_failed`, which reports the number of failed systemd units. More plugins may be added in the future to expand monitoring capabilities.
+The repository currently provides:
+
+- `process_monitoring` for configured process and iptables counts
+- `systemd_failed` for failed systemd units
 
 ## Features
 
-- **Lightweight and POSIX-compliant shell scripting**
-- **Standalone plugins, each with its own installer for independent management**
-- **Per-target enable/disable via toggle variables (process_monitoring)**
-- **Customizable for monitoring any daemon or system process**
-- **Warning and critical threshold support**
-- **No sudo required: privileged checks use munin-node's per-plugin `user` setting**
+- POSIX `/bin/sh` plugin and installer code
+- Independently installable plugins
+- Munin `autoconf`, `config`, and data-fetch support
+- Per-target enable/disable configuration in `process_monitoring`
+- Warning and critical threshold support
+- Capability-based automatic configuration checks
+- Plugin runtime does not invoke `sudo`; privileged collection uses
+  munin-node's per-plugin execution identity
 
 ## Supported Environments
 
-This plugin is intended for use on:
+The repository targets Linux systems with Munin-node installed and configured.
 
-- **Linux (Debian, Ubuntu, CentOS, etc.)**
-- Munin-node installed and configured
-- Environments with `/usr/local/share/munin/plugins` and `/etc/munin/plugins/` available
-- Privileged checks (e.g., iptables monitoring) configured via `/etc/munin/plugin-conf.d/`
+The default installation paths are:
+
+- `/usr/local/share/munin/plugins`
+- `/etc/munin/plugins`
+
+The installers create these directories when they do not already exist.
+
+Individual plugins can have additional capability requirements.
+For example, `systemd_failed` requires a reachable systemd system manager.
 
 ## Included Plugins
 
 ### `process_monitoring`
 
-Monitors the number of active processes or configuration items (like iptables rules) and reports them all in a single graph. Each target (iptables, ntpd, memcached, postgres, mysql, apache2, sshd, xrdp) can be individually enabled or disabled via toggle variables. All targets are enabled by default except `xrdp`, which must be turned on explicitly with `env.xrdp 1`.
+Monitors configured process and iptables targets in one Munin graph.
 
-Note that the `sshd` target counts running `sshd` processes. If `sshd` is socket-activated (systemd `ssh.socket` / `sshd.socket`, the default on recent Ubuntu releases), no listener runs while the system is idle, so the target reports 0 and trips the critical threshold. Set `env.sshd 0` on such hosts.
+The current targets are:
+
+- iptables
+- ntpd
+- memcached
+- postgres / postmaster
+- mysqld / mariadbd
+- apache2
+- sshd
+- xrdp
+
+All are enabled by default except xrdp.
+
+Target enable/disable settings are exposed through Munin `env.*`
+configuration.
 
 ### `systemd_failed`
 
-Monitors the number of failed systemd units reported by `systemctl` and reports it in a single graph. A healthy system reports 0, and any value of 1 or more triggers a warning. It detects services that started but later crashed or exited abnormally, which process presence checks cannot catch. Its automatic configuration check enables the plugin only when `systemctl` can query the system manager.
+Reports the number of failed systemd units.
+
+A healthy system reports zero. A value above zero triggers a warning.
+
+Its autoconf check verifies that `systemctl` can query the system manager,
+not merely that the executable exists.
 
 ## Installation
 
-Each plugin has its own installer. Run the installer for the plugin you want:
+Each plugin has its own installer.
 
-```sh
-./installer/install_process_monitoring.sh
-./installer/install_systemd_failed.sh
-```
+Install `process_monitoring`:
 
-This will:
+    ./installer/install_process_monitoring.sh
 
-- Copy the plugin to `/usr/local/share/munin/plugins/`
-- Create a symlink in `/etc/munin/plugins/`
-- Set executable permissions
+Install `systemd_failed`:
+
+    ./installer/install_systemd_failed.sh
+
+The installers:
+
+- copy the matching plugin to `/usr/local/share/munin/plugins/`
+- create the matching symlink in `/etc/munin/plugins/`
+- create the required directories when they do not already exist
+- set the plugin executable permission
+
+Restart munin-node after installation:
+
+    sudo systemctl restart munin-node
 
 ## Uninstallation
 
-To remove all installed components of a plugin, run its installer with `--uninstall`:
+Remove `process_monitoring`:
 
-```sh
-./installer/install_process_monitoring.sh --uninstall
-./installer/install_systemd_failed.sh --uninstall
-```
+    ./installer/install_process_monitoring.sh --uninstall
 
-This will:
+Remove `systemd_failed`:
 
-- Delete the plugin from `/usr/local/share/munin/plugins/`
-- Remove the symlink from `/etc/munin/plugins/`
+    ./installer/install_systemd_failed.sh --uninstall
 
-Make sure to restart `munin-node` afterward:
+Each installer removes its matching installed plugin and enabled-plugin
+symlink.
 
-```sh
-sudo systemctl restart munin-node
-```
+Restart munin-node afterward:
+
+    sudo systemctl restart munin-node
 
 ## Configuration
 
-Install the plugin with a single symlink:
+Site-specific Munin plugin configuration normally lives under:
 
-```sh
-sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring
-```
+    /etc/munin/plugin-conf.d/
 
-Then restart `munin-node`:
+For example:
 
-```sh
-sudo systemctl restart munin-node
-```
+    [process_monitoring]
+    env.postgres 0
+    env.mysql 0
+    env.xrdp 1
 
-Each target is enabled or disabled with its own toggle variable, set via
-`/etc/munin/plugin-conf.d/local`. The following block lists every target at its
-default value, so it can be copied in as-is and edited in place:
+Munin plugin-conf syntax separates the directive and value with whitespace:
 
-```
-[process_monitoring]
-env.iptables 1
-env.ntpd 1
-env.memcached 1
-env.postgres 1
-env.mysql 1
-env.apache2 1
-env.sshd 1
-env.xrdp 0
-```
+    env.xrdp 1
 
-`1` enables a target, `0` disables it. All targets default to `1` except `xrdp`,
-which defaults to `0`. Listing every variable is optional — anything left out
-keeps its default — so a minimal configuration that turns off the two database
-targets and turns on xrdp is just:
+It does not use shell assignment syntax.
 
-```
-[process_monitoring]
-env.postgres 0
-env.mysql 0
-env.xrdp 1
-```
+The plugins can contain built-in defaults. Site-specific overrides should use
+the plugin's exposed `env.*` interface rather than editing the installed copy
+when such an interface exists.
 
-Restart `munin-node` afterwards, since plugin configuration is read at startup.
+For the complete configuration reference, target defaults, privilege model,
+systemd behavior, and troubleshooting information, see
+[doc/FEATURES.md](doc/FEATURES.md).
 
-**Separate the name and the value with whitespace, not `=`.** Munin's
-plugin-conf.d parser accepts only `env.NAME VALUE`. `env.xrdp=1` is rejected,
-and `env.xrdp = 1` assigns the literal value `= 1`. This is the most common
-reason the toggles appear to be ignored — see
-[Troubleshooting](#troubleshooting-the-toggles-have-no-effect) below.
+## Policy
 
-### Granting privileges for iptables monitoring
+The repository's implementation and maintenance policy is defined in
+[doc/POLICY.md](doc/POLICY.md).
 
-Listing firewall rules requires root. **The plugin does not call `sudo`.** Instead,
-grant the privilege through munin-node itself: munin-node runs as root and drops
-privileges separately for each plugin, so it can simply be told to keep root for
-this one.
+It covers:
 
-Add the following to `/etc/munin/plugin-conf.d/local` (create the file if it does
-not exist; any filename in that directory works, and the section name must match
-the plugin's symlink name):
+- Compatibility, Safety, and Efficiency
+- change discipline for established monitoring infrastructure
+- Munin protocol compatibility
+- plugin and installer architecture
+- configuration interfaces
+- privilege and safety
+- POSIX shell requirements
+- validation
+- versioning and documentation roles
 
-```
-[process_monitoring]
-user root
-```
+## Feature Reference
 
-Restart munin-node so the new setting is read:
+The detailed user-facing behavior reference is
+[doc/FEATURES.md](doc/FEATURES.md).
 
-```sh
-sudo systemctl restart munin-node
-```
+It documents:
 
-Then verify that the plugin can actually read the rules. `munin-run` applies the
-same `plugin-conf.d` settings that munin-node uses, so this reproduces the real
-execution environment:
-
-```sh
-sudo munin-run process_monitoring
-```
-
-A working setup prints a non-zero `iptables.value`. If it prints `iptables.value 0`
-while your firewall is populated, the plugin is still running unprivileged — check
-that the section name matches the symlink in `/etc/munin/plugins/` and that
-munin-node was restarted.
-
-#### Do not use a sudoers rule
-
-Earlier versions of this plugin invoked `sudo iptables` and documented a sudoers
-entry such as:
-
-```sh
-# DO NOT USE - kept here only so it can be recognized and removed
-munin ALL=(ALL) NOPASSWD: /sbin/iptables
-```
-
-That rule is unrestricted: it permits any `iptables` invocation, including
-`iptables -F`, which flushes the firewall. Granting it to the munin account turns
-a read-only monitoring need into an effective privilege escalation path. If you
-configured it for a previous version, remove it:
-
-```sh
-sudo visudo
-```
-
-If running the whole plugin as root is not acceptable in your environment, disable
-the iptables target instead with `env.iptables 0` and monitor the firewall
-separately.
-
-#### Narrowing the privilege further (optional)
-
-`user root` applies to the entire plugin, including the process counting targets
-that do not need it. If you prefer to keep the privilege scoped, install a second
-symlink dedicated to iptables and grant root only to that one:
-
-```sh
-sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring_iptables
-```
-
-```
-[process_monitoring]
-user munin
-env.iptables 0
-
-[process_monitoring_iptables]
-user root
-env.iptables 1
-env.ntpd 0
-env.memcached 0
-env.postgres 0
-env.mysql 0
-env.apache2 0
-env.sshd 0
-env.xrdp 0
-```
-
-This produces two graphs, so adopt it only if the separation is worth the extra
-graph.
-
-### Troubleshooting: the toggles have no effect
-
-If the plugin keeps reporting its built-in defaults after you edited
-`/etc/munin/plugin-conf.d/local`, check the syntax of the file first. Munin
-parses each directive as `NAME VALUE` separated by whitespace:
-
-```
-env.xrdp 1      # correct
-env.xrdp=1      # rejected: the line does not parse
-env.xrdp = 1    # parses, but the value becomes "= 1", not "1"
-```
-
-A rejected line is not skipped in isolation. munin-node stops reading the file
-at that point and discards every directive after it, so a `user root` placed
-below a malformed `env.` line stops applying as well, and the iptables target
-starts reporting 0.
-
-Run the plugin the way munin-node does to see the parse error:
-
-```sh
-sudo munin-run process_monitoring config
-```
-
-A malformed file reports something like:
-
-```
-Line is not well formed (env.xrdp=1) at /etc/munin/plugin-conf.d/local line 3. Skipping the rest of the file
-```
-
-Once the file parses cleanly, the `config` output reflects the toggles: disabled
-targets have no `*.label` line, and enabled ones do. Restart `munin-node` so the
-node itself picks up the change:
-
-```sh
-sudo systemctl restart munin-node
-```
-
-Two further points if `config` already looks right but the graph does not:
-
-- Newly enabled targets appear on the master's next run (up to five minutes).
-- Disabled targets keep their existing RRD files, so the master may keep drawing
-  the old data series until those files are removed from
-  `/var/lib/munin/<group>/<host>-<plugin>-<field>-g.rrd`.
+- Munin execution modes
+- plugin fields and defaults
+- process target behavior
+- iptables privilege configuration
+- sshd and xrdp behavior
+- systemd failure reporting
+- installation and uninstallation
+- plugin-conf syntax and troubleshooting
 
 ## Usage Example
 
-Once installed and symlinked, Munin will collect and graph the number of monitored processes such as `iptables`, `ntpd`, and `memcached`.
+After installation and configuration, verify a plugin through Munin's real
+execution environment.
 
-The plugin is invoked as `process_monitoring` and provides a single graph showing the status of all defined targets in one view.
+For `process_monitoring`:
 
-You can customize which processes to monitor by editing the plugin script itself.
+    sudo munin-run process_monitoring config
+    sudo munin-run process_monitoring
+
+For `systemd_failed`:
+
+    sudo munin-run systemd_failed config
+    sudo munin-run systemd_failed
 
 ## Directory Structure
 
-This section describes the main directories of the repository and what each one
-is for. It is not a complete file listing: only the entries worth knowing about
-before installing or adding a plugin are shown.
+    .
+    ├── plugins/
+    │   ├── process_monitoring
+    │   └── systemd_failed
+    ├── installer/
+    │   ├── install_process_monitoring.sh
+    │   └── install_systemd_failed.sh
+    └── doc/
+        ├── POLICY.md
+        ├── FEATURES.md
+        ├── VERSIONS
+        ├── LICENSE
+        ├── COPYING
+        └── COPYING.LESSER
 
-```
-.
-├── plugins/                           The plugins themselves, one POSIX shell script each.
-│   ├── process_monitoring             Counts processes and iptables rules per target.
-│   └── systemd_failed                 Counts failed systemd units.
-├── installer/                         One installer per plugin, each also handling --uninstall.
-│   ├── install_process_monitoring.sh
-│   └── install_systemd_failed.sh
-└── doc/
-    ├── VERSIONS                       Version history of the repository.
-    ├── LICENSE                        License notice.
-    ├── COPYING                        GPL version 3 text.
-    └── COPYING.LESSER                 LGPL version 3 text.
-```
+`plugins/` contains the Munin plugins.
 
-The layout is deliberately flat: a plugin is a single file under `plugins/` with
-a matching `installer/install_<name>.sh`, and nothing is shared between plugins.
-That is what makes them installable and removable one at a time. A new plugin is
-added as that same pair of files.
+`installer/` contains one installer per plugin.
 
-A plugin script carries no configuration of its own. Everything a site changes
-lives outside the repository, in `/etc/munin/plugin-conf.d/` — see
-[Configuration](#configuration).
+`doc/POLICY.md` defines repository-wide implementation and maintenance rules.
+
+`doc/FEATURES.md` contains the detailed user-facing behavior reference.
+
+`doc/VERSIONS` records repository release history.
+
+The current architecture keeps each plugin independently installable with a
+matching installer.
 
 ## Contribution
 
-Contributions are welcome. You can help by:
-- Creating new plugins and submitting pull requests
-- Improving installation or configuration scripts
-- Reporting bugs or feature requests
+Contributions are welcome.
 
-Please follow the style and format used in this repository, and include documentation and examples for any new plugin.
+Changes must follow [doc/POLICY.md](doc/POLICY.md).
+
+A plugin or installer implementation change should include validation for the
+Munin, operating-system, shell, privilege, and configuration environments
+affected by that change.
+
+Documentation work does not expand into implementation refactoring merely
+because an unrelated improvement opportunity is noticed.
 
 ## License
 
-This repository is dual licensed under the [GPL version 3](https://www.gnu.org/licenses/gpl-3.0.html) or the [LGPL version 3](https://www.gnu.org/licenses/lgpl-3.0.html), at your option.
-For full details, please refer to the [LICENSE](doc/LICENSE) file.  See also [COPYING](doc/COPYING) and [COPYING.LESSER](doc/COPYING.LESSER) for the complete license texts.
+This repository is dual licensed under the
+[GPL version 3](https://www.gnu.org/licenses/gpl-3.0.html) or the
+[LGPL version 3](https://www.gnu.org/licenses/lgpl-3.0.html), at your option.
 
-Thank you for using and contributing to this repository!
+See:
+
+- [LICENSE](doc/LICENSE)
+- [COPYING](doc/COPYING)
+- [COPYING.LESSER](doc/COPYING.LESSER)
