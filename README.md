@@ -104,7 +104,8 @@ The installers:
 - create the required directories when they do not already exist
 - set the plugin executable permission
 
-Restart munin-node after installation:
+Restart munin-node with the service-management mechanism used by the host.
+On a systemd-based host:
 
     sudo systemctl restart munin-node
 
@@ -121,7 +122,8 @@ Remove `systemd_failed`:
 Each installer removes its matching installed plugin and enabled-plugin
 symlink.
 
-Restart munin-node afterward:
+Restart munin-node afterward with the service-management mechanism used by
+the host. On a systemd-based host:
 
     sudo systemctl restart munin-node
 
