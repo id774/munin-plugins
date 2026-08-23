@@ -348,7 +348,8 @@ is created in the second.
 
 The installers create the directories when they do not already exist.
 
-After installation, restart munin-node:
+After installation, restart munin-node with the service-management mechanism
+used by the host. On a systemd-based host:
 
     sudo systemctl restart munin-node
 
@@ -410,7 +411,8 @@ and confirm that no malformed-line warning is printed.
 When configuration parses correctly, enabled targets appear in the `config`
 output and disabled targets do not.
 
-Restart munin-node after changing its configuration.
+Restart munin-node with the service-management mechanism used by the host
+after changing its configuration.
 
 ## 15. Existing RRD Data
 
