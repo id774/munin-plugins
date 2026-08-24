@@ -60,30 +60,16 @@ For example, `systemd_failed` requires a reachable systemd system manager.
 
 Monitors configured process and iptables targets in one Munin graph.
 
-The current targets are:
-
-- iptables
-- ntpd
-- memcached
-- postgres / postmaster
-- mysqld / mariadbd
-- apache2
-- sshd
-- xrdp
-
-All are enabled by default except xrdp.
-
-Target enable/disable settings are exposed through Munin `env.*`
-configuration.
+Its target definitions, defaults, thresholds, privilege requirements, and
+Munin configuration are maintained in
+[doc/FEATURES.md](doc/FEATURES.md#3-process_monitoring).
 
 ### `systemd_failed`
 
-Reports the number of failed systemd units.
+Reports failed systemd units through Munin.
 
-A healthy system reports zero. A value above zero triggers a warning.
-
-Its autoconf check verifies that `systemctl` can query the system manager,
-not merely that the executable exists.
+Its value semantics, thresholds, and autoconf behavior are maintained in
+[doc/FEATURES.md](doc/FEATURES.md#8-systemd_failed).
 
 ## Installation
 
