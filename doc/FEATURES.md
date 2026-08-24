@@ -22,10 +22,8 @@ munin-plugins contains independently installable Munin plugins.
 
 | Path | Role |
 | --- | --- |
-| `plugins/process_monitoring` | Monitors configured process and iptables targets |
-| `plugins/systemd_failed` | Monitors failed systemd units |
-| `installer/install_process_monitoring.sh` | Installs and removes `process_monitoring` |
-| `installer/install_systemd_failed.sh` | Installs and removes `systemd_failed` |
+| `plugins/<plugin>` | Munin plugin implementation |
+| `installer/install_<plugin>.sh` | Matching installer and uninstaller |
 | `doc/POLICY.md` | Implementation and maintenance policy |
 | `doc/VERSIONS` | Repository release history |
 
