@@ -73,15 +73,9 @@ Its value semantics, thresholds, and autoconf behavior are maintained in
 
 ## Installation
 
-Each plugin has its own installer.
-
-Install `process_monitoring`:
-
-    ./installer/install_process_monitoring.sh
-
-Install `systemd_failed`:
-
-    ./installer/install_systemd_failed.sh
+Each plugin has its own installer. Use the plugin name shown in
+[Included Plugins](#included-plugins) and run the matching file under
+`installer/`, whose name is `install_<plugin>.sh`.
 
 The installers:
 
@@ -97,13 +91,8 @@ On a systemd-based host:
 
 ## Uninstallation
 
-Remove `process_monitoring`:
-
-    ./installer/install_process_monitoring.sh --uninstall
-
-Remove `systemd_failed`:
-
-    ./installer/install_systemd_failed.sh --uninstall
+To remove a plugin, run the same matching installer with the `--uninstall`
+option.
 
 Each installer removes its matching installed plugin and enabled-plugin
 symlink.
