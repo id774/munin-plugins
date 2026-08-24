@@ -24,10 +24,10 @@ by the default Munin plugins used by a deployment.
 
 Each plugin is independently installable and has its own installer.
 
-The repository currently provides:
-
-- `process_monitoring` for configured process and iptables counts
-- `systemd_failed` for failed systemd units
+The currently included plugins are summarized in
+[Included Plugins](#included-plugins). Their detailed behavior,
+configuration, defaults, and execution semantics are maintained in
+[doc/FEATURES.md](doc/FEATURES.md).
 
 ## Features
 
@@ -190,27 +190,20 @@ It documents:
 ## Usage Example
 
 After installation and configuration, verify a plugin through Munin's real
-execution environment.
+execution environment:
 
-For `process_monitoring`:
+    sudo munin-run <plugin> config
+    sudo munin-run <plugin>
 
-    sudo munin-run process_monitoring config
-    sudo munin-run process_monitoring
-
-For `systemd_failed`:
-
-    sudo munin-run systemd_failed config
-    sudo munin-run systemd_failed
+Use one of the plugin names shown in
+[Included Plugins](#included-plugins). Plugin-specific behavior and
+configuration are documented in [doc/FEATURES.md](doc/FEATURES.md).
 
 ## Directory Structure
 
     .
-    ├── plugins/
-    │   ├── process_monitoring
-    │   └── systemd_failed
-    ├── installer/
-    │   ├── install_process_monitoring.sh
-    │   └── install_systemd_failed.sh
+    ├── plugins/              Munin plugin implementations.
+    ├── installer/            Matching install/uninstall scripts.
     └── doc/
         ├── POLICY.md
         ├── FEATURES.md
@@ -218,6 +211,11 @@ For `systemd_failed`:
         ├── LICENSE
         ├── COPYING
         └── COPYING.LESSER
+
+The README does not duplicate the current file inventory under `plugins/`
+and `installer/`. The included plugin names are summarized above, and their
+detailed behavior is maintained in
+[doc/FEATURES.md](doc/FEATURES.md).
 
 `plugins/` contains the Munin plugins.
 
