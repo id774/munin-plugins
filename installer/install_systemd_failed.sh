@@ -24,6 +24,8 @@
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v1.1 2026-08-23
+#       Improve installer portability and prerequisite command validation.
 #  v1.0 2026-07-24
 #       Initial release.
 #

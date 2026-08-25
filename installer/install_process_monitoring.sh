@@ -27,6 +27,8 @@
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v3.1 2026-08-23
+#       Improve installer portability and prerequisite command validation.
 #  v3.0 2026-07-29
 #       Replace the sudoers guidance in the post-install message with the
 #       munin-node 'user root' setting, matching the plugin's removal of sudo.
