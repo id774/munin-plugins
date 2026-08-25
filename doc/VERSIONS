@@ -8,6 +8,7 @@ v26.08 (Release Date: TBD)
 - Establish doc/POLICY.md as the self-contained implementation and maintenance policy for compatibility, safety, change discipline, Munin interfaces, privilege, portability, installation, validation, and versioning.
 - Add doc/FEATURES.md as the detailed user-facing reference for plugin behavior, configuration, privilege, installation, and troubleshooting.
 - Require systemd_failed autoconf to verify that systemctl can query the system manager.
+- Improve installer portability and prerequisite command validation across the installers.
 
 v26.07 (2026-07-31)
 -------------------
