@@ -304,6 +304,9 @@ decorative prose.
 A plugin header records the plugin's purpose, configuration, operating notes,
 examples, relevant privilege requirements, and its own version history.
 
+Each version history entry's description is at most two lines, and a single
+line at or under 80 columns is preferred whenever practical.
+
 Ordinary implementation comments explain reasons, constraints, or
 non-obvious behavior. Do not add comments that merely restate the code.
 
@@ -324,6 +327,9 @@ An installer:
 - uses the established installation paths documented by the repository,
 - and keeps its own version history independently of the repository release
   version.
+
+Each entry in that version history is at most two lines, and a single line
+at or under 80 columns is preferred whenever practical.
 
 The current default plugin source installation directory is:
 
@@ -389,6 +395,10 @@ review correction, formatting change, or implementation detail.
 Related changes within the same unreleased repository version are combined
 and described at the level necessary to understand their externally relevant
 effect.
+
+Each `doc/VERSIONS` bullet is at most two physical lines, and a single line
+at or under 80 columns is preferred whenever practical, as detailed in the
+Version History Guidelines at the foot of that file.
 
 A documentation-only change does not require a plugin or installer version
 increment.
