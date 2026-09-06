@@ -5,26 +5,38 @@ v26.08 (2026-08-26)
 -------------------
 - Add the version history description guidelines to the end of this file.
 - Describe the repository structure and documentation roles in the README.
-- Establish doc/POLICY.md as the self-contained implementation and maintenance policy for compatibility, safety, change discipline, Munin interfaces, privilege, portability, installation, validation, and versioning.
-- Add doc/FEATURES.md as the detailed user-facing reference for plugin behavior, configuration, privilege, installation, and troubleshooting.
-- Require systemd_failed autoconf to verify that systemctl can query the system manager.
-- Improve installer portability and prerequisite command validation across the installers.
+- Establish doc/POLICY.md as the self-contained implementation policy for
+  compatibility, safety, Munin interfaces, privilege, and versioning.
+- Add doc/FEATURES.md as the detailed user-facing reference for plugin behavior,
+  configuration, privilege, installation, and troubleshooting.
+- Require systemd_failed autoconf to verify that systemctl can query the system
+  manager.
+- Improve installer portability and prerequisite command validation across the
+  installers.
 
 v26.07 (2026-07-31)
 -------------------
-- Stop calling sudo from process_monitoring and document munin-node's 'user root' setting instead, so the munin account no longer needs blanket sudo access to iptables.
-- Add sshd process monitoring to process_monitoring with its own toggle variable, enabled by default.
-- Add xrdp process monitoring to process_monitoring with its own toggle variable, disabled by default.
-- Move plugins under plugins/ and installers under installer/, resolving the plugin source path relative to each installer.
-- Add systemd_failed plugin and its installer to report the number of failed systemd units.
-- Replace awk {n,} interval expression in usage() with a portable equivalent for mawk compatibility.
+- Stop calling sudo from process_monitoring; document munin-node's 'user root'
+  setting instead, dropping blanket sudo for iptables.
+- Add sshd process monitoring to process_monitoring with its own toggle variable,
+  enabled by default.
+- Add xrdp process monitoring to process_monitoring with its own toggle variable,
+  disabled by default.
+- Move plugins under plugins/ and installers under installer/, resolving the
+  plugin source path relative to each installer.
+- Add systemd_failed plugin and its installer to report the number of failed
+  systemd units.
+- Replace awk {n,} interval expression in usage() with a portable equivalent for
+  mawk compatibility.
 - Apply the same portable awk fix to process_monitoring's usage() function.
-- Fix README's Included Plugin, Configuration, and Features sections to reflect per-target toggle variables instead of a symlink-based architecture.
+- Fix README's Included Plugin, Configuration, and Features sections to reflect
+  per-target toggle variables instead of a symlink-based architecture.
 - Remove unused id and rm from check_commands in install_process_monitoring.sh.
 
 v25.10 (2025-10-24)
 -------------------
-- Standardize all shell scripts by removing trailing exit status lines (exit $?) for POSIX-safe reuse.
+- Standardize all shell scripts by removing trailing exit status lines (exit $?)
+  for POSIX-safe reuse.
 
 v25.09 (2025-09-26)
 -------------------
