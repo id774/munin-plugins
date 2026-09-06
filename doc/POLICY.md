@@ -307,6 +307,9 @@ examples, relevant privilege requirements, and its own version history.
 Each version history entry's description is at most two lines, and a single
 line at or under 80 columns is preferred whenever practical.
 
+The first entry, at the lowest version the plugin's own history reaches,
+reads only `Initial release.` and nothing else.
+
 Ordinary implementation comments explain reasons, constraints, or
 non-obvious behavior. Do not add comments that merely restate the code.
 
@@ -330,6 +333,9 @@ An installer:
 
 Each entry in that version history is at most two lines, and a single line
 at or under 80 columns is preferred whenever practical.
+
+The first entry, at the lowest version the installer's own history reaches,
+reads only `Initial release.` and nothing else.
 
 The current default plugin source installation directory is:
 
@@ -398,7 +404,9 @@ effect.
 
 Each `doc/VERSIONS` bullet is at most two physical lines, and a single line
 at or under 80 columns is preferred whenever practical, as detailed in the
-Version History Guidelines at the foot of that file.
+Version History Guidelines at the foot of that file. Where the record
+reaches back to a genuine first version, that entry reads only
+`Initial release.` and nothing else.
 
 A documentation-only change does not require a plugin or installer version
 increment.

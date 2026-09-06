@@ -150,7 +150,7 @@
 #       Refactored for POSIX compliance. Added full header documentation,
 #       improved readability and maintainability with English comments.
 #  v0.1 2018-09-18
-#       Initial version.
+#       Initial release.
 #
 ########################################################################
 
