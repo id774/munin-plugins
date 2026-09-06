@@ -63,3 +63,5 @@ Version History Guidelines
   same file or feature.
 - Place closely related entries near each other.
 - Append an independent new change to the end of the current version entry.
+- Where the record reaches back to a genuine first version, that entry reads
+  only "Initial release." and nothing else.
