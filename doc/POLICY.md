@@ -330,6 +330,17 @@ An installer:
 - uses the established installation paths documented by the repository,
 - and keeps its own version history independently of the repository release
   version.
+- A helper owns the external-command prerequisites it directly uses. The
+  standard header-extracting `usage()` calls `check_commands awk` immediately
+  before invoking `awk`.
+- A `check_system()` function that invokes `uname` calls
+  `check_commands uname` before its first use of `uname`; callers do not carry
+  `uname` solely on behalf of that `check_system()` call.
+- Moving usage-only `awk` ownership into `usage()` or `uname` ownership into
+  `check_system()`, including removal of the corresponding redundant caller
+  check, is prerequisite ownership normalization. By maintainer decision,
+  that normalization alone does not increment an installer version or add a
+  `Version History` entry.
 
 Each entry in that version history is at most two lines, and a single line
 at or under 80 columns is preferred whenever practical.
