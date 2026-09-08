@@ -51,6 +51,7 @@
 
 # Display full script header information extracted from the top comment block
 usage() {
+    check_commands awk
     awk '
         BEGIN { in_header = 0 }
         /^#+$/ && length($0) >= 10 { if (!in_header) { in_header = 1; next } else exit }
@@ -61,6 +62,7 @@ usage() {
 
 # Check if the system is Linux
 check_system() {
+    check_commands uname
     if [ "$(uname -s)" != "Linux" ]; then
         echo "[ERROR] This script is intended for Linux systems only." >&2
         exit 1
@@ -145,7 +147,7 @@ create_symlink() {
 # Install munin plugins
 install() {
     check_system
-    check_commands sudo cp mkdir chmod ln dirname uname
+    check_commands sudo cp mkdir chmod ln dirname
     check_sudo
     create_directory
     install_plugin
@@ -156,7 +158,7 @@ install() {
 # Uninstall munin plugins
 uninstall() {
     check_system
-    check_commands sudo rm dirname uname
+    check_commands sudo rm dirname
     check_sudo
 
     echo "[INFO] Uninstalling $PLUGIN_NAME..."
