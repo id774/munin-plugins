@@ -24,6 +24,8 @@
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v1.2 2026-09-09
+#       Reject unknown options and validate pre-existing enabled-plugin symlinks.
 #  v1.1 2026-08-23
 #       Improve installer portability and prerequisite command validation.
 #  v1.0 2026-07-24
@@ -116,7 +118,15 @@ install_plugin() {
 # Create a symbolic link in /etc/munin/plugins pointing to the installed plugin
 create_symlink() {
     if [ -L "$PLUGIN_LINK" ]; then
-        echo "[INFO] Symlink already exists: $PLUGIN_LINK"
+        check_commands readlink
+        LINK_TARGET=$(readlink -f "$PLUGIN_LINK" 2>/dev/null)
+        EXPECTED_TARGET=$(readlink -f "$PLUGIN_DST" 2>/dev/null)
+        if [ -n "$LINK_TARGET" ] && [ -n "$EXPECTED_TARGET" ] && [ "$LINK_TARGET" = "$EXPECTED_TARGET" ]; then
+            echo "[INFO] Symlink already exists: $PLUGIN_LINK"
+        else
+            echo "[ERROR] Existing symlink does not point to $PLUGIN_DST: $PLUGIN_LINK" >&2
+            exit 1
+        fi
     else
         echo "[INFO] Creating symlink: $PLUGIN_LINK"
         sudo ln -s "$PLUGIN_DST" "$PLUGIN_LINK" || {
@@ -129,7 +139,7 @@ create_symlink() {
 # Install munin plugins
 install() {
     check_system
-    check_commands sudo cp mkdir chmod ln dirname
+    check_commands sudo cp mkdir chmod ln
     check_sudo
     create_directory
     install_plugin
@@ -140,7 +150,7 @@ install() {
 # Uninstall munin plugins
 uninstall() {
     check_system
-    check_commands sudo rm dirname
+    check_commands sudo rm
     check_sudo
 
     echo "[INFO] Uninstalling $PLUGIN_NAME..."
@@ -176,6 +186,25 @@ final_message() {
 # Main entry point of the script
 main() {
     PLUGIN_NAME="systemd_failed"
+
+    case "$1" in
+        -h|--help|-v|--version)
+            usage
+            ;;
+        -u|--uninstall)
+            ACTION="uninstall"
+            ;;
+        "")
+            ACTION="install"
+            ;;
+        *)
+            echo "[ERROR] Unknown option: $1" >&2
+            return 1
+            ;;
+    esac
+
+    check_commands dirname
+
     SCRIPT_PATH=$0
     case "$SCRIPT_PATH" in
         */*) ;;
@@ -193,19 +222,16 @@ main() {
     PLUGIN_DIR=$(dirname "$PLUGIN_DST")
     LINK_DIR=$(dirname "$PLUGIN_LINK")
 
-    case "$1" in
-        -h|--help|-v|--version)
-            usage
-            ;;
-        -u|--uninstall)
-            uninstall
-            ;;
-        ""|*)
+    case "$ACTION" in
+        install)
             install
+            ;;
+        uninstall)
+            uninstall
             ;;
     esac
 
-    return 0
+    return $?
 }
 
 # Execute main function
