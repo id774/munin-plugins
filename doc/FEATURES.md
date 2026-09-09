@@ -226,6 +226,15 @@ and configuring:
 
 This separates the privileged target but also creates a separate Munin graph.
 
+The additional `process_monitoring_iptables` symlink is deployment-created and
+is not managed by `install_process_monitoring.sh`. When decommissioning this
+optional instance, remove the symlink explicitly:
+
+    sudo rm /etc/munin/plugins/process_monitoring_iptables
+
+Remove the `[process_monitoring_iptables]` block from `plugin-conf.d` as well
+when that instance is no longer used.
+
 ## 6. sshd Monitoring
 
 The `sshd` target counts processes whose command name is exactly:

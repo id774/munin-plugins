@@ -1,6 +1,13 @@
 munin-plugins Repository Version History
 ========================================
 
+v26.09 (Release Date: TBD)
+--------------------------
+- Reject unknown installer options and validate pre-existing enabled-plugin
+  symlinks before reporting a successful installation.
+- Align process_monitoring operational documentation and historical graph-limit
+  record with the current behavior.
+
 v26.08 (2026-08-26)
 -------------------
 - Add the version history description guidelines to the end of this file.

@@ -27,6 +27,9 @@
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v3.2 2026-09-09
+#       Reject unknown options and validate pre-existing enabled-plugin symlinks.
+#       Align post-install guidance with persistent configuration.
 #  v3.1 2026-08-23
 #       Improve installer portability and prerequisite command validation.
 #  v3.0 2026-07-29
@@ -134,7 +137,15 @@ install_plugin() {
 # Create a symbolic link in /etc/munin/plugins pointing to the installed plugin
 create_symlink() {
     if [ -L "$PLUGIN_LINK" ]; then
-        echo "[INFO] Symlink already exists: $PLUGIN_LINK"
+        check_commands readlink
+        LINK_TARGET=$(readlink -f "$PLUGIN_LINK" 2>/dev/null)
+        EXPECTED_TARGET=$(readlink -f "$PLUGIN_DST" 2>/dev/null)
+        if [ -n "$LINK_TARGET" ] && [ -n "$EXPECTED_TARGET" ] && [ "$LINK_TARGET" = "$EXPECTED_TARGET" ]; then
+            echo "[INFO] Symlink already exists: $PLUGIN_LINK"
+        else
+            echo "[ERROR] Existing symlink does not point to $PLUGIN_DST: $PLUGIN_LINK" >&2
+            exit 1
+        fi
     else
         echo "[INFO] Creating symlink: $PLUGIN_LINK"
         sudo ln -s "$PLUGIN_DST" "$PLUGIN_LINK" || {
@@ -147,7 +158,7 @@ create_symlink() {
 # Install munin plugins
 install() {
     check_system
-    check_commands sudo cp mkdir chmod ln dirname
+    check_commands sudo cp mkdir chmod ln
     check_sudo
     create_directory
     install_plugin
@@ -158,7 +169,7 @@ install() {
 # Uninstall munin plugins
 uninstall() {
     check_system
-    check_commands sudo rm dirname
+    check_commands sudo rm
     check_sudo
 
     echo "[INFO] Uninstalling $PLUGIN_NAME..."
@@ -185,8 +196,11 @@ final_message() {
     echo " The plugin file has been installed or overwritten:"
     echo "   $PLUGIN_DST"
     echo ""
-    echo " Please REVIEW AND EDIT the plugin NOW to match your environment (process names, thresholds, labels)."
-    echo " Example targets: postgres postmaster apache2 mysqld mariadbd iptables sshd xrdp"
+    echo " Configure supported site-specific settings under /etc/munin/plugin-conf.d/."
+    echo " Do not edit the installed plugin for persistent customization; this"
+    echo " installer overwrites $PLUGIN_DST on the next installation."
+    echo " Changes to process names, thresholds, or labels belong in the maintained"
+    echo " source rather than the installed copy."
     echo ""
     echo " If you use iptables monitoring, the plugin must run as root."
     echo " It does NOT call sudo. Grant the privilege through munin-node by adding"
@@ -199,7 +213,8 @@ final_message() {
     echo " It would let the munin account flush the firewall with 'iptables -F'."
     echo " If an earlier installation added that line, remove it with: sudo visudo"
     echo ""
-    echo " After editing the plugin, reload munin-node to apply changes:"
+    echo " Restart munin-node with the service-management mechanism used by this host."
+    echo " On a systemd-based host:"
     echo "   sudo systemctl restart munin-node"
     echo ""
     echo " Then verify the output with:"
@@ -209,6 +224,25 @@ final_message() {
 # Main entry point of the script
 main() {
     PLUGIN_NAME="process_monitoring"
+
+    case "$1" in
+        -h|--help|-v|--version)
+            usage
+            ;;
+        -u|--uninstall)
+            ACTION="uninstall"
+            ;;
+        "")
+            ACTION="install"
+            ;;
+        *)
+            echo "[ERROR] Unknown option: $1" >&2
+            return 1
+            ;;
+    esac
+
+    check_commands dirname
+
     SCRIPT_PATH=$0
     case "$SCRIPT_PATH" in
         */*) ;;
@@ -226,19 +260,16 @@ main() {
     PLUGIN_DIR=$(dirname "$PLUGIN_DST")
     LINK_DIR=$(dirname "$PLUGIN_LINK")
 
-    case "$1" in
-        -h|--help|-v|--version)
-            usage
-            ;;
-        -u|--uninstall)
-            uninstall
-            ;;
-        ""|*)
+    case "$ACTION" in
+        install)
             install
+            ;;
+        uninstall)
+            uninstall
             ;;
     esac
 
-    return 0
+    return $?
 }
 
 # Execute main function
