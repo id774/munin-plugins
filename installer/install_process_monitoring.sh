@@ -88,6 +88,7 @@ check_commands() {
 
 # Check if the user has sudo privileges (password may be required)
 check_sudo() {
+    check_commands sudo
     if ! sudo -v 2>/dev/null; then
         echo "[ERROR] This script requires sudo privileges. Please run as a user with sudo access." >&2
         exit 1
@@ -158,7 +159,7 @@ create_symlink() {
 # Install munin plugins
 install() {
     check_system
-    check_commands sudo cp mkdir chmod ln
+    check_commands cp mkdir chmod ln
     check_sudo
     create_directory
     install_plugin
@@ -169,7 +170,7 @@ install() {
 # Uninstall munin plugins
 uninstall() {
     check_system
-    check_commands sudo rm
+    check_commands rm
     check_sudo
 
     echo "[INFO] Uninstalling $PLUGIN_NAME..."
