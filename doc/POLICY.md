@@ -336,11 +336,14 @@ An installer:
 - A `check_system()` function that invokes `uname` calls
   `check_commands uname` before its first use of `uname`; callers do not carry
   `uname` solely on behalf of that `check_system()` call.
-- Moving usage-only `awk` ownership into `usage()` or `uname` ownership into
-  `check_system()`, including removal of the corresponding redundant caller
-  check, is prerequisite ownership normalization. By maintainer decision,
-  that normalization alone does not increment an installer version or add a
-  `Version History` entry.
+- A `check_sudo()` function that invokes `sudo -v` calls
+  `check_commands sudo` immediately before its first use of `sudo`; callers do
+  not carry `sudo` solely on behalf of that `check_sudo()` call.
+- Moving usage-only `awk` ownership into `usage()`, `uname` ownership into
+  `check_system()`, or `sudo` ownership into `check_sudo()`, including removal
+  of the corresponding redundant caller check, is prerequisite ownership
+  normalization. By maintainer decision, that normalization alone does not
+  increment an installer version or add a `Version History` entry.
 
 Each entry in that version history is at most two lines, and a single line
 at or under 80 columns is preferred whenever practical.
