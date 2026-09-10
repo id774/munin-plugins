@@ -18,7 +18,7 @@
 #  Munin showing the current number of failed units. A healthy system
 #  reports 0, and any value of 1 or more triggers a warning.
 #
-#  Author: id774 (More info: http://id774.net)
+#  Author: id774 (More info: https://id774.net)
 #  Source Code: https://github.com/id774/munin-plugins
 #  License: The GPL version 3, or LGPL version 3 (Dual License).
 #  Contact: idnanashi@gmail.com
