@@ -21,9 +21,8 @@
 #  the state of required processes.
 #
 #  Toggle targets:
-#    Set the following global variables to 1 or 0 to enable or disable monitoring.
-#    Default is 1 (enabled) except where noted. You can edit them here or
-#    pass via environment (e.g., in /etc/munin/plugin-conf.d using env.iptables 0).
+#    The shell assignments below define the built-in defaults in the maintained
+#    source. Default is 1 (enabled) except where noted.
 #      iptables   = 1  # Monitor iptables rule presence
 #      ntpd       = 1  # Monitor ntpd process
 #      memcached  = 1  # Monitor memcached process
@@ -33,11 +32,10 @@
 #      sshd       = 1  # Monitor sshd process
 #      xrdp       = 0  # Monitor xrdp process (disabled by default)
 #
-#    When editing this file, the values are plain shell assignments:
-#    Example: to disable iptables monitoring, set: iptables=0
-#    Example: to enable xrdp monitoring, set: xrdp=1
+#    For site-specific overrides, use Munin plugin configuration instead of
+#    editing the installed copy. The installed copy may be overwritten by the
+#    installer. Changes to the built-in defaults belong in the maintained source.
 #
-#    You can also override these values via Munin plugin configuration.
 #    The block below lists every target at its default value, so it can be
 #    copied into /etc/munin/plugin-conf.d/local as-is and edited in place:
 #
@@ -54,7 +52,6 @@
 #    Only the targets you actually want to change need to be listed; any
 #    variable left out keeps the default shown above.
 #
-#    This allows you to manage settings without editing the plugin itself.
 #    If both are defined, the environment variable (plugin-conf.d setting) takes precedence.
 #
 #    IMPORTANT: separate the variable name and the value with WHITESPACE, not
@@ -77,7 +74,8 @@
 #  Usage:
 #      sudo ln -s /usr/local/share/munin/plugins/process_monitoring /etc/munin/plugins/process_monitoring
 #
-#      Then reload munin-node:
+#      Then restart munin-node with the service-management mechanism used by
+#      the host. On a systemd-based host:
 #      sudo systemctl restart munin-node
 #
 #  Example:
@@ -94,7 +92,8 @@
 #        [process_monitoring]
 #        user root
 #
-#      Then restart munin-node:
+#      Then restart munin-node with the service-management mechanism used by
+#      the host. On a systemd-based host:
 #        sudo systemctl restart munin-node
 #
 #      Verify with:
@@ -110,10 +109,8 @@
 #      iptables target with env.iptables 0 and monitor the firewall from a
 #      dedicated plugin instead.
 #
-#      The xrdp target counts the xrdp listener process only. The session
-#      manager (xrdp-sesman) runs as a separate process and is not counted,
-#      so the value stays at 1 while no user is connected and grows as
-#      per-session xrdp processes are spawned.
+#      The xrdp target counts every process whose command name is exactly
+#      'xrdp'. The separate 'xrdp-sesman' process is not counted.
 #
 #      The sshd target counts processes named exactly 'sshd', which is the
 #      listener plus, on OpenSSH older than 9.8, one process per active

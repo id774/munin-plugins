@@ -164,6 +164,10 @@ Disabled targets do not appear as fields in the plugin's `config` output.
 
 The iptables target reads firewall rules.
 
+It counts lines in `iptables -vn -L` output containing the literal text:
+
+    SET name: SSH side: source
+
 The plugin itself does not invoke `sudo`.
 
 When iptables monitoring requires root privileges, configure munin-node to
@@ -172,7 +176,8 @@ run the plugin as root:
     [process_monitoring]
     user root
 
-Restart munin-node after changing plugin configuration:
+Restart munin-node after changing plugin configuration with the
+service-management mechanism used by the host. On a systemd-based host:
 
     sudo systemctl restart munin-node
 

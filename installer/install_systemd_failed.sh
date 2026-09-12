@@ -24,6 +24,9 @@
 #  - Use --uninstall to remove the plugin and its symlink.
 #
 #  Version History:
+#  v1.3 2026-09-12
+#       Fail on uninstall removal errors, reject destination symlinks, and
+#       set deployed file and newly created directory modes explicitly.
 #  v1.2 2026-09-09
 #       Reject unknown options and validate pre-existing enabled-plugin symlinks.
 #  v1.1 2026-08-23
@@ -84,6 +87,10 @@ create_directory() {
             echo "[ERROR] Failed to create $PLUGIN_DIR." >&2
             exit 1
         }
+        sudo chmod 755 "$PLUGIN_DIR" || {
+            echo "[ERROR] Failed to set permissions on $PLUGIN_DIR." >&2
+            exit 1
+        }
     else
         echo "[INFO] Plugin directory already exists: $PLUGIN_DIR"
     fi
@@ -94,6 +101,10 @@ create_directory() {
             echo "[ERROR] Failed to create $LINK_DIR." >&2
             exit 1
         }
+        sudo chmod 755 "$LINK_DIR" || {
+            echo "[ERROR] Failed to set permissions on $LINK_DIR." >&2
+            exit 1
+        }
     else
         echo "[INFO] Symlink directory already exists: $LINK_DIR"
     fi
@@ -101,6 +112,11 @@ create_directory() {
 
 # Copy the plugin to the target plugin directory and make it executable
 install_plugin() {
+    if [ -L "$PLUGIN_DST" ]; then
+        echo "[ERROR] Plugin destination is a symbolic link: $PLUGIN_DST" >&2
+        exit 1
+    fi
+
     if [ -f "$PLUGIN_DST" ]; then
         echo "[INFO] Existing plugin found. Overwriting: $PLUGIN_DST"
     else
@@ -110,8 +126,8 @@ install_plugin() {
         echo "[ERROR] Failed to copy plugin to $PLUGIN_DST." >&2
         exit 1
     }
-    sudo chmod +x "$PLUGIN_DST" || {
-        echo "[ERROR] Failed to set executable permission on $PLUGIN_DST." >&2
+    sudo chmod 755 "$PLUGIN_DST" || {
+        echo "[ERROR] Failed to set permissions on $PLUGIN_DST." >&2
         exit 1
     }
 }
@@ -156,13 +172,23 @@ uninstall() {
 
     echo "[INFO] Uninstalling $PLUGIN_NAME..."
     if [ -L "$PLUGIN_LINK" ]; then
-        sudo rm "$PLUGIN_LINK" && echo "[INFO] Removed symlink: $PLUGIN_LINK"
+        if sudo rm "$PLUGIN_LINK"; then
+            echo "[INFO] Removed symlink: $PLUGIN_LINK"
+        else
+            echo "[ERROR] Failed to remove symlink: $PLUGIN_LINK" >&2
+            exit 1
+        fi
     else
         echo "[INFO] Symlink not found: $PLUGIN_LINK"
     fi
 
     if [ -f "$PLUGIN_DST" ]; then
-        sudo rm "$PLUGIN_DST" && echo "[INFO] Removed plugin: $PLUGIN_DST"
+        if sudo rm "$PLUGIN_DST"; then
+            echo "[INFO] Removed plugin: $PLUGIN_DST"
+        else
+            echo "[ERROR] Failed to remove plugin: $PLUGIN_DST" >&2
+            exit 1
+        fi
     else
         echo "[INFO] Plugin not found: $PLUGIN_DST"
     fi
