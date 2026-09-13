@@ -29,6 +29,10 @@ The currently included plugins are summarized in
 configuration, defaults, and execution semantics are maintained in
 [doc/FEATURES.md](doc/FEATURES.md).
 
+This repository uses `master` as its primary branch name.
+
+The name is used solely as a technical identifier, following the long-standing convention historically used by Git. It does not express or imply any association with racism, slavery, discrimination, or any political or social ideology.
+
 ## Features
 
 - POSIX `/bin/sh` plugin and installer code
@@ -229,7 +233,3 @@ See:
 - [LICENSE](doc/LICENSE)
 - [COPYING](doc/COPYING)
 - [COPYING.LESSER](doc/COPYING.LESSER)
-
-This repository uses `master` as its primary branch name.
-
-The name is used solely as a technical identifier, following the long-standing convention historically used by Git. It does not express or imply any association with racism, slavery, discrimination, or any political or social ideology.
