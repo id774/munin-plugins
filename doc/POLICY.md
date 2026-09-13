@@ -7,6 +7,27 @@ munin-plugins is a collection of independently installable Munin plugins.
 The repository contains plugin programs under `plugins/` and one installer
 for each plugin under `installer/`.
 
+## 0. Governing Principle
+
+**Simplicity is robustness.**
+
+This is the governing principle for every rule below. It does not authorize
+dropping required behavior, compatibility, or safety; it requires meeting
+them with the least complexity justified by the actual requirement.
+
+Complexity is itself a source of failure, compatibility risk, operational
+risk, and maintenance cost. Do not add a branch, state variable, helper,
+abstraction, dependency, retry, fallback, validation, or defensive check
+unless it is required by the specification or addresses a realistic failure
+mode with meaningful operational consequence. Do not re-check a condition
+already guaranteed by a preceding successful operation or an established
+invariant.
+
+When two designs satisfy the same requirements, choose the one with less
+control flow, less state, fewer dependencies, and fewer moving parts.
+Simplicity is judged by necessary concepts and behavior, not by line count
+alone.
+
 ## 1. Core Principles
 
 ### 1.1 Decision Priorities
