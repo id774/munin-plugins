@@ -14,7 +14,8 @@
 10. [Usage Example](#usage-example)
 11. [Directory Structure](#directory-structure)
 12. [Contribution](#contribution)
-13. [License](#license)
+13. [Branch Naming](#branch-naming)
+14. [License](#license)
 
 ## Overview
 
@@ -218,6 +219,12 @@ affected by that change.
 Documentation work does not expand into implementation refactoring merely
 because an unrelated improvement opportunity is noticed.
 
+## Branch Naming
+
+This repository uses `master` as its primary branch name.
+
+The name is used solely as a technical identifier, following the long-standing convention historically used by Git. It does not express or imply any association with racism, slavery, discrimination, or any political or social ideology.
+
 ## License
 
 This repository is dual licensed under the
@@ -229,7 +236,3 @@ See:
 - [LICENSE](doc/LICENSE)
 - [COPYING](doc/COPYING)
 - [COPYING.LESSER](doc/COPYING.LESSER)
-
-This repository uses `master` as its primary branch name.
-
-The name is used solely as a technical identifier, following the long-standing convention historically used by Git. It does not express or imply any association with racism, slavery, discrimination, or any political or social ideology.
