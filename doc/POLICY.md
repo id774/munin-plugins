@@ -110,6 +110,27 @@ purpose conflict, the priorities and intended behavior defined above govern.
 
 This is not a formal MUST/SHOULD/MAY taxonomy.
 
+### 1.4 Failure, Continuation, and Reporting
+
+The result of an operation, whether later work continues, and whether anything
+is reported are separate decisions.
+
+A missing required capability, invalid configuration, or another condition
+that makes correct plugin or installer behavior impossible must use the
+established failure or unknown-value behavior. Do not invent a plausible value
+or downgrade the condition to a warning merely to keep processing.
+
+An optional or independent target may be skipped only when the plugin or
+installer contract permits the remaining work to stay coherent. A normal
+no-op, an intentionally inapplicable target, or a supported absence is not a
+warning merely because no work was performed and may be silent.
+
+Emit diagnostics only when the operator needs them. Use warning-level reporting
+for degraded but recoverable conditions and error-level reporting for failures
+that prevent the affected logical operation from completing correctly. Never
+add human-readable diagnostics to Munin protocol stdout; Sections 4.2 and 4.3
+remain authoritative for machine-readable output.
+
 ## 2. Documentation Roles and Sources of Truth
 
 The documentation structure of this repository is:
