@@ -131,6 +131,18 @@ that prevent the affected logical operation from completing correctly. Never
 add human-readable diagnostics to Munin protocol stdout; Sections 4.2 and 4.3
 remain authoritative for machine-readable output.
 
+### 1.5 Pull Request Scope and History
+
+A pull request carries one coherent higher-level purpose, which may require
+coordinated changes across several files or responsibilities. Do not split one
+approved purpose mechanically by individual finding, file, or review comment,
+and do not include unrelated cleanup, formatting, or feature work. Represent
+one coherent change as one commit and amend review corrections instead of
+accumulating follow-up commits; use `--force-with-lease` only on the branch
+under review when a safe history rewrite is required. Check the final branch
+against its base to remove abandoned intermediate wording and work. Merge only
+with explicit maintainer approval.
+
 ## 2. Documentation Roles and Sources of Truth
 
 The documentation structure of this repository is:
@@ -357,6 +369,16 @@ non-obvious behavior. Do not add comments that merely restate the code.
 
 When a comment or header describes observable behavior, keep it consistent
 with the implementation when that implementation is deliberately changed.
+
+Write English explanatory prose in clear, natural sentences. Do not replace a
+sentence with a label and a colon, a status prefix such as `Implement:` or
+`Incompatible:`, a symbol, or an unexplained abbreviation. Apply this to
+English prose in comments, docstrings, documentation, version histories,
+release notes, commit messages, and pull request descriptions. This rule does
+not alter the established forms of headings, list labels, tables, code,
+configuration syntax, machine-readable fields, literal interface strings, or
+non-English content required by the repository's purpose. Do not rewrite
+historical entries or unrelated text merely to align their style.
 
 ## 10. Installer Policy
 
