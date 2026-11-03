@@ -496,11 +496,5 @@ increment.
 
 ## 13. License
 
-This repository is dual licensed under the GPL version 3 or the LGPL version
-3, at the user's option.
-
-See:
-
-- `doc/LICENSE`
-- `doc/COPYING`
-- `doc/COPYING.LESSER`
+Follow the applicable terms in `doc/LICENSE`, `doc/COPYING`, and
+`doc/COPYING.LESSER`.
