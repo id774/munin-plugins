@@ -3,9 +3,11 @@
 ########################################################################
 # systemd_failed: Munin Plugin for Monitoring Failed systemd Units
 #
-#  This plugin belongs to the 'contrib' family, indicating it is community-maintained.
+#  This plugin belongs to the 'contrib' family, indicating it is
+#  community-maintained.
 #%# family=contrib
-#  This plugin supports Munin's autoconf feature for automatic configuration checks.
+#  This plugin supports Munin's autoconf feature for automatic
+#  configuration checks.
 #%# capabilities=autoconf
 #
 #  Description:

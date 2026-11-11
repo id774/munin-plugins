@@ -3,9 +3,11 @@
 ########################################################################
 # process_monitoring: Munin Plugin for Monitoring Required Processes
 #
-#  This plugin belongs to the 'contrib' family, indicating it is community-maintained.
+#  This plugin belongs to the 'contrib' family, indicating it is
+#  community-maintained.
 #%# family=contrib
-#  This plugin supports Munin's autoconf feature for automatic configuration checks.
+#  This plugin supports Munin's autoconf feature for automatic
+#  configuration checks.
 #%# capabilities=autoconf
 #
 #  Description:
@@ -52,7 +54,8 @@
 #    Only the targets you actually want to change need to be listed; any
 #    variable left out keeps the default shown above.
 #
-#    If both are defined, the environment variable (plugin-conf.d setting) takes precedence.
+#    If both are defined, the environment variable (plugin-conf.d setting)
+#    takes precedence.
 #
 #    IMPORTANT: separate the variable name and the value with WHITESPACE, not
 #    '='. Munin's plugin-conf.d parser expects 'env.NAME VALUE'. A line written
