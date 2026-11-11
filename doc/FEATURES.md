@@ -66,11 +66,9 @@ types, drawing style, and thresholds.
 
 Run the plugin without `autoconf` or `config` to collect values.
 
-The result uses Munin's:
+The result uses the Munin field-value format:
 
     field.value VALUE
-
-format.
 
 A plugin may emit:
 
