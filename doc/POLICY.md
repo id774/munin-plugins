@@ -7,26 +7,34 @@ munin-plugins is a collection of independently installable Munin plugins.
 The repository contains plugin programs under `plugins/` and one installer
 for each plugin under `installer/`.
 
+This document stands on its own. It is the whole implementation policy of this
+repository, and no rule here is completed by a document kept somewhere else. A
+subject it does not cover is a gap in this document, to be filled here rather
+than looked up elsewhere.
+
 ## 0. Governing Principle
 
 **Simplicity is robustness.**
 
 This is the governing principle for every rule below. It does not authorize
-dropping required behavior, compatibility, or safety; it requires meeting
-them with the least complexity justified by the actual requirement.
+dropping required behavior, compatibility, security, safety, documentation, or
+validation. It requires satisfying those requirements with no more complexity
+than the actual problem justifies.
 
-Complexity is itself a source of failure, compatibility risk, operational
-risk, and maintenance cost. Do not add a branch, state variable, helper,
-abstraction, dependency, retry, fallback, validation, or defensive check
-unless it is required by the specification or addresses a realistic failure
-mode with meaningful operational consequence. Do not re-check a condition
-already guaranteed by a preceding successful operation or an established
-invariant.
+Complexity is itself a source of failure, compatibility risk, operational risk,
+security risk, and maintenance cost. Do not add a branch, state variable,
+helper, abstraction, dependency, network boundary, retry, fallback, validation,
+configuration state, or framework unless the specification requires it or it
+addresses a realistic failure mode with meaningful consequence.
+
+Do not re-check a condition already guaranteed by a preceding successful
+operation or an established invariant. Do not create a layer merely to resemble
+a possible future architecture.
 
 When two designs satisfy the same requirements, choose the one with less
-control flow, less state, fewer dependencies, and fewer moving parts.
-Simplicity is judged by necessary concepts and behavior, not by line count
-alone.
+control flow, less state, fewer dependencies, fewer side effects, fewer moving
+parts, and fewer operational assumptions. Simplicity is judged by the number of
+necessary concepts and behaviors, not by line count alone.
 
 ## 1. Core Principles
 
@@ -85,28 +93,28 @@ failure being prevented against the added complexity, new failure modes,
 compatibility risk, operational cost, maintenance cost, and rollback cost.
 
 Behavior that has operated reliably over time is evidence and has value of
-its own. Do not refactor established monitoring or installation
-infrastructure merely because another design appears cleaner, more modern, or
-more defensive.
+its own. Do not refactor established infrastructure merely because another
+design appears cleaner, more modern, or more defensive.
 
 An implementation change is made only when that change has been explicitly
 chosen as part of the work being performed. Before deployment, validate it in
-the supported and representative Munin, operating-system, shell, privilege,
-and configuration environments affected by the change. A successful check in
-one convenient environment is not sufficient evidence for a change whose
-compatibility or operational risk extends to other supported environments.
+the supported and representative environments affected by the change. A
+successful check in one convenient environment is not sufficient evidence for
+a change whose compatibility risk extends to other supported environments.
 
 ### 1.3 Wording Strength
 
-Reserve absolute wording such as `must`, `always`, and `never` for an
-invariant that admits no reasonable exception.
+Use `must`, `always`, and `never` only for invariants that admit no reasonable
+exception. Express preferences and situational decisions with `prefer`,
+`should`, or other qualified wording.
 
-Use wording such as `prefer`, `should`, or `when appropriate` for a design
-preference or situational rule.
+Do not apply a rule literally where doing so would defeat the repository's
+stated purpose, intended behavior, compatibility, safety, or approved change
+scope.
 
-A rule must not be written so that applying its wording literally produces a
-result contrary to Compatibility, Safety, or Efficiency. Where wording and
-purpose conflict, the priorities and intended behavior defined above govern.
+Where the applicable specifications and policy leave a legitimate choice
+open, an explicit maintainer decision governs that choice. General
+conventions do not override it.
 
 This is not a formal MUST/SHOULD/MAY taxonomy.
 
@@ -134,21 +142,42 @@ remain authoritative for machine-readable output.
 ### 1.5 Pull Request Scope and History
 
 A pull request carries one coherent higher-level purpose, which may require
-coordinated changes across several files or responsibilities. Do not split one
-approved purpose mechanically by individual finding, file, or review comment,
-and do not include unrelated cleanup, formatting, or feature work. Represent
-one coherent change as one commit and amend review corrections instead of
-accumulating follow-up commits; use `--force-with-lease` only on the branch
-under review when a safe history rewrite is required. Check the final branch
-against its base to remove abandoned intermediate wording and work. Merge only
-with explicit maintainer approval.
+coordinated changes across several files or responsibilities.
 
-An automated agent must not commit or push directly to `master`.
-It must commit authorized changes to a work branch and submit them through
-a pull request targeting the approved base branch. This paragraph does not
-change a human maintainer's authority or the existing merge approval rule.
+Do not split one approved purpose mechanically by individual finding, file,
+or review comment, and do not include unrelated cleanup, formatting, or
+feature work.
+
+Represent one coherent change as one commit and amend review corrections
+instead of accumulating follow-up commits.
+
+Rewriting the history of a branch under review requires an explicit
+instruction from the maintainer. When such a rewrite is authorized, use
+`--force-with-lease` and limit the operation to the branch under review.
+
+Check the final branch against its base to remove abandoned intermediate
+wording and work. Merge only with explicit maintainer approval.
+
+Unless explicitly instructed otherwise by the maintainer, an automated agent
+must commit authorized changes to a work branch and submit them through a
+pull request targeting the approved base branch.
+
+An automated agent must not commit or push directly to `master` without
+explicit instructions from the maintainer authorizing that operation.
+
+Creating or updating a pull request does not authorize the agent to merge it
+or enable auto-merge. Either action requires an explicit instruction from
+the maintainer.
+
+Authorization for one operation does not imply authorization for another.
+These rules do not change a human maintainer's authority.
 
 ## 2. Documentation Roles and Sources of Truth
+
+A concrete specification has exactly one authoritative home appropriate to the
+responsibility that owns it. Other documents may link to or summarize that
+specification for navigation, but they do not create a competing normative
+copy.
 
 The documentation structure of this repository is:
 
@@ -166,8 +195,7 @@ The documentation structure of this repository is:
   history of that installer.
 
 The implementation is the primary evidence of what currently happens. It is
-not, by itself, proof that the current behavior is the intended
-specification.
+not, by itself, proof that the current behavior is the intended specification.
 
 When implementation and documentation disagree, compare the implementation,
 documented interface, component header, history, existing design, and
@@ -369,21 +397,37 @@ line at or under 80 columns is preferred whenever practical.
 The first entry, at the lowest version the plugin's own history reaches,
 reads only `Initial release.` and nothing else.
 
-Ordinary implementation comments explain reasons, constraints, or
-non-obvious behavior. Do not add comments that merely restate the code.
+A comment preserves a reason, constraint, non-obvious intent, or decision that
+a later change could otherwise undo. Do not use comments merely to restate code
+whose operation is already evident.
 
 When a comment or header describes observable behavior, keep it consistent
 with the implementation when that implementation is deliberately changed.
 
 Write English explanatory prose in clear, natural sentences. Do not replace a
 sentence with a label and a colon, a status prefix such as `Implement:` or
-`Incompatible:`, a symbol, or an unexplained abbreviation. Apply this to
-English prose in comments, docstrings, documentation, version histories,
-release notes, commit messages, and pull request descriptions. This rule does
-not alter the established forms of headings, list labels, tables, code,
-configuration syntax, machine-readable fields, literal interface strings, or
-non-English content required by the repository's purpose. Do not rewrite
-historical entries or unrelated text merely to align their style.
+`Incompatible:`, a symbol, or an unexplained abbreviation.
+
+Apply this to English prose in comments, docstrings, documentation, version
+histories, release notes, commit messages, and pull request descriptions.
+
+This rule does not alter the established forms of headings, list labels,
+tables, code, configuration syntax, machine-readable fields, literal
+interface strings, or non-English content required by the repository's
+purpose.
+
+Wrap ordinary prose at approximately 80 columns where practical. Preserve
+the logical structure of paragraphs, lists, and other document elements.
+Do not break URLs, code, tables, identifiers, or other elements whose
+structure requires a longer line.
+
+Shared boilerplate must retain its common wording, line breaks, blank lines,
+and formatting. Do not reformat it independently in individual repositories.
+Its established common form takes precedence over the ordinary line-wrapping
+guideline.
+
+Do not rewrite historical entries or unrelated text merely to align their
+style.
 
 ## 10. Installer Policy
 
@@ -442,6 +486,11 @@ structural change may form an installer release.
 
 ## 11. Validation
 
+Before accepting a change, ask whether it is the smallest coherent change that
+serves its purpose, whether it alters behavior outside that purpose, whether it
+adds an unnecessary dependency or side effect, whether it exposes private
+information, and whether directly affected documentation remains correct.
+
 Validation is selected according to the files and behavior changed.
 
 A shell implementation change includes an applicable POSIX shell syntax
@@ -478,6 +527,23 @@ The repository version uses `<year>.<month>` and is recorded in
 Plugin and installer component versions remain independent of the repository
 release version.
 
+These rules apply to individual source files that carry their own version
+history. Repository release versions are governed separately.
+
+- Source file versions use a two-level `major.minor` scheme.
+- When incrementing `minor` would reach `10`, roll over instead: increment
+  `major` by 1 and reset `minor` to `0` (for example `v0.9` -> `v1.0`,
+  `v1.9` -> `v2.0`, `v2.9` -> `v3.0`).
+- Do not continue `minor` past `9` as in standard semantic versioning
+  (do not use `v1.10`, `v1.11`, ...).
+- Raising `major` for a reason other than the rollover is a decision the
+  maintainer makes, not one this document derives from the change.
+- Removing or renaming an option, changing what an existing argument means,
+  changing a default so that an unchanged invocation does something else, and
+  changing how a path or a configuration value is resolved are all incompatible
+  changes. Say so in the `Version History` entry, so that the number the change
+  is released under can be chosen knowing that.
+
 A version history records release-level changes rather than every commit,
 review correction, formatting change, or implementation detail.
 
@@ -485,11 +551,12 @@ Related changes within the same unreleased repository version are combined
 and described at the level necessary to understand their externally relevant
 effect.
 
-Each `doc/VERSIONS` bullet is at most two physical lines, and a single line
-at or under 80 columns is preferred whenever practical, as detailed in the
-Version History Guidelines at the foot of that file. Where the record
-reaches back to a genuine first version, that entry reads only
-`Initial release.` and nothing else.
+Follow the Version History Guidelines at the end of `doc/VERSIONS`.
+The established form of an existing history takes precedence over the ordinary
+two-line, 80-column limit.
+
+The initial release entry reads only `Initial release.` and nothing else.
+Historical First Commit records are not release entries.
 
 A documentation-only change does not require a plugin or installer version
 increment.
@@ -498,3 +565,7 @@ increment.
 
 Follow the applicable terms in `doc/LICENSE`, `doc/COPYING`, and
 `doc/COPYING.LESSER`.
+
+Content adapted from an external article, answer, documentation example, source
+file, dataset, or other third-party material credits its source and respects
+the license or redistribution terms that apply to it.
