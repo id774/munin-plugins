@@ -13,9 +13,8 @@
 9. [Feature Reference](#feature-reference)
 10. [Usage Example](#usage-example)
 11. [Directory Structure](#directory-structure)
-12. [Contribution](#contribution)
-13. [Primary Branch](#primary-branch)
-14. [License](#license)
+12. [Primary Branch](#primary-branch)
+13. [License](#license)
 
 ## Overview
 
@@ -206,36 +205,20 @@ detailed behavior is maintained in
 The current architecture keeps each plugin independently installable with a
 matching installer.
 
-## Contribution
-
-Contributions are welcome.
-
-Changes must follow [doc/POLICY.md](doc/POLICY.md).
-
-A plugin or installer implementation change should include validation for the
-Munin, operating-system, shell, privilege, and configuration environments
-affected by that change.
-
-Documentation work does not expand into implementation refactoring merely
-because an unrelated improvement opportunity is noticed.
-
 ## Primary Branch
 
 This repository uses `master` as its primary branch name.
 
-The name is used solely as a technical identifier, following the
-long-standing convention historically used by Git. It does not express or
-imply any association with racism, slavery, discrimination, or any
-political or social ideology.
+The name is used solely as a technical identifier, following the long-standing
+convention historically used by Git. It does not express or imply any
+association with racism, slavery, discrimination, or any political or social
+ideology.
 
 ## License
 
 This repository is dual licensed under the
 [GPL version 3](https://www.gnu.org/licenses/gpl-3.0.html) or the
 [LGPL version 3](https://www.gnu.org/licenses/lgpl-3.0.html), at your option.
-
-See:
-
-- [LICENSE](doc/LICENSE)
-- [COPYING](doc/COPYING)
-- [COPYING.LESSER](doc/COPYING.LESSER)
+For full details, please refer to [doc/LICENSE](doc/LICENSE). See also
+[doc/COPYING](doc/COPYING) and [doc/COPYING.LESSER](doc/COPYING.LESSER) for the
+complete license texts.
